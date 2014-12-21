@@ -1,0 +1,13 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace />
+  <MonoDevelop.Ide.Workbench ActiveDocument="..\Flugtest\Assets\Standard Assets\Character Controllers\Sources\Scripts\FPSInputController.js">
+    <Files>
+      <File FileName="..\Flugtest\Assets\Standard Assets\Character Controllers\Sources\Scripts\CharacterMotor.js" Line="95" Column="32" />
+      <File FileName="..\Flugtest\Assets\Standard Assets\Character Controllers\Sources\Scripts\FPSInputController.js" Line="18" Column="3" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

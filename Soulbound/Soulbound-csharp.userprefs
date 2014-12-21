@@ -1,0 +1,17 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\GameSetupMenu.cs">
+    <Files>
+      <File FileName="Assets\Scripts\GameLogic\WorldServer.cs" Line="26" Column="1" />
+      <File FileName="Assets\Scripts\GameSetupMenu.cs" Line="63" Column="65" />
+      <File FileName="Assets\Scripts\TerrainGeneration\PagingTerrain.cs" Line="15" Column="24" />
+      <File FileName="Assets\Scripts\TerrainGeneration\Generators\TestGenerator.cs" Line="16" Column="40" />
+      <File FileName="Assets\Scripts\TerrainGeneration\TerrainData.cs" Line="17" Column="25" />
+      <File FileName="Assets\Scripts\TerrainGeneration\Generators\TerrainGenerator.cs" Line="13" Column="31" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
