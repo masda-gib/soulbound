@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PersonController : MonoBehaviour, IPerson, ICharacterController
+public class Person : MonoBehaviour, IPerson, ICharacterController
 {
 	public float speed = 30;
 	public float forwadBias = 0.5f;
@@ -14,8 +14,6 @@ public class PersonController : MonoBehaviour, IPerson, ICharacterController
 	public Transform secondaryUseSlot;
     
 	private Vector2 movementSpeedVector;
-	private bool shouldJump;
-	private Vector2 lookVector;
 
 	// Use this for initialization
 	void Start () 
@@ -27,8 +25,6 @@ public class PersonController : MonoBehaviour, IPerson, ICharacterController
 	void FixedUpdate () 
 	{
 		DoMove();
-		DoLook();
-		DoJump();
 	}
 
 	private void DoMove()
@@ -45,37 +41,15 @@ public class PersonController : MonoBehaviour, IPerson, ICharacterController
 		rigidbody.MovePosition (transform.position + transform.forward * m.y + transform.right * m.x);
 	}
 
-	private void DoLook()
+	#region IPerson implementation
+
+	public IPersonContainer CurrentContainer 
 	{
-		float turnAmount = Mathf.Clamp(lookVector.x, -turnSpeed.x * Time.deltaTime, turnSpeed.x * Time.deltaTime);
-
-		float xRot = head.localRotation.eulerAngles.x;
-		if (xRot > 180)
-		{
-			xRot -= 360;
-		}
-		float lookAmount = Mathf.Clamp(-lookVector.y, -turnSpeed.y * Time.deltaTime, turnSpeed.y * Time.deltaTime);
-		xRot = Mathf.Clamp(xRot + lookAmount, -maxVerticalAngle, maxVerticalAngle);
-
-		rigidbody.MoveRotation(Quaternion.AngleAxis(turnAmount, transform.up) * transform.rotation);
-		head.localRotation = Quaternion.Euler(xRot, 0, 0);
-    }
-
-	public void ResetActions()
-	{
-		lookVector = Vector2.zero;
-		movementSpeedVector = Vector2.zero;
-		shouldJump = false;
-    }
-
-	private void DoJump()
-	{
-		if (shouldJump) 
-		{
-			rigidbody.AddForce(transform.up * jumpPower, ForceMode.Impulse);
-			shouldJump = false;
-		}
+		get;
+		set;
 	}
+
+	#endregion
 
 	#region ICharacterController implementation
 
@@ -97,7 +71,20 @@ public class PersonController : MonoBehaviour, IPerson, ICharacterController
 
 	public void EnterLeave ()
 	{
-		throw new System.NotImplementedException ();
+        if (CurrentContainer == null) 
+        {
+            var conts = GameObject.FindObjectsOfType<Garment> ();
+            foreach (var c in conts) {
+                if (Vector3.Distance (this.transform.position, c.transform.position) < 10) 
+                {
+                    c.RequestPilotEntering (this);
+                    break;
+                }
+            }
+        } else 
+        {
+            CurrentContainer.EjectPilot();
+        }
 	}
 
 	public void SelectUp ()
@@ -114,17 +101,31 @@ public class PersonController : MonoBehaviour, IPerson, ICharacterController
 	{
 		if (enabled) 
 		{
-			lookVector = dir;
+            float turnAmount = Mathf.Clamp(dir.x, -turnSpeed.x * Time.deltaTime, turnSpeed.x * Time.deltaTime);
+            
+            float xRot = head.localRotation.eulerAngles.x;
+            if (xRot > 180)
+            {
+                xRot -= 360;
+            }
+            float lookAmount = Mathf.Clamp(-dir.y, -turnSpeed.y * Time.deltaTime, turnSpeed.y * Time.deltaTime);
+            xRot = Mathf.Clamp(xRot + lookAmount, -maxVerticalAngle, maxVerticalAngle);
+            
+            rigidbody.MoveRotation(Quaternion.AngleAxis(turnAmount, transform.up) * transform.rotation);
+            head.localRotation = Quaternion.Euler(xRot, 0, 0);
 		}
 	}
-
-	#endregion
-
-	#region IActionController implementation
+    
+    #endregion
+    
+    #region IActionController implementation
 
 	public void BeginJump ()
 	{
-		shouldJump = enabled;
+		if (enabled) 
+		{
+		    rigidbody.AddForce (transform.up * jumpPower, ForceMode.Impulse);
+		}
 	}
 
 	public void ContinueJump (bool doContinue)

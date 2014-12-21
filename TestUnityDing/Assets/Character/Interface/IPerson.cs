@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public interface IPerson : ICharacterController
+public interface IPerson
 {
-	//IPersonContainer CurrentContainer { get; }
+	IPersonContainer CurrentContainer { get; set; }
 
 	//IEquipmentHolder EquippedItems { get; }
 }
