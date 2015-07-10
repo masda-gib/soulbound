@@ -38,7 +38,7 @@ public class Person : MonoBehaviour, IPerson, ICharacterController
 		Vector2 m = movementSpeedVector * squash / ratio;
 		m *= Time.deltaTime * speed;
 		
-		rigidbody.MovePosition (transform.position + transform.forward * m.y + transform.right * m.x);
+		GetComponent<Rigidbody>().MovePosition (transform.position + transform.forward * m.y + transform.right * m.x);
 	}
 
 	#region IPerson implementation
@@ -111,7 +111,7 @@ public class Person : MonoBehaviour, IPerson, ICharacterController
             float lookAmount = Mathf.Clamp(-dir.y, -turnSpeed.y * Time.deltaTime, turnSpeed.y * Time.deltaTime);
             xRot = Mathf.Clamp(xRot + lookAmount, -maxVerticalAngle, maxVerticalAngle);
             
-            rigidbody.MoveRotation(Quaternion.AngleAxis(turnAmount, transform.up) * transform.rotation);
+            GetComponent<Rigidbody>().MoveRotation(Quaternion.AngleAxis(turnAmount, transform.up) * transform.rotation);
             head.localRotation = Quaternion.Euler(xRot, 0, 0);
 		}
 	}
@@ -124,7 +124,7 @@ public class Person : MonoBehaviour, IPerson, ICharacterController
 	{
 		if (enabled) 
 		{
-		    rigidbody.AddForce (transform.up * jumpPower, ForceMode.Impulse);
+		    GetComponent<Rigidbody>().AddForce (transform.up * jumpPower, ForceMode.Impulse);
 		}
 	}
 
