@@ -92,89 +92,134 @@ public class TerrainCell : MonoBehaviour
 		return null;
 	}
 
+	private Index3 CalcNeighborStep(Index3 step, Neighbors neighbor, int xDir, int zDirDown, int zDir, int zDirUp)
+	{
+		var nStep = new Index3 ();
+		switch (neighbor) 
+		{
+			// Oben-Nord-Ost
+		case Neighbors.TOP_NORTH_EAST:
+			nStep.x = step.x + (xDir * zDirUp) + zDir;
+			nStep.y = step.y + 1;
+			nStep.z = step.z + zDirUp;
+			break;
+
+			// Oben-Nord-West
+		case Neighbors.TOP_NORTH_WEST:
+			nStep.x = step.x - 1 + (xDir * zDirUp) + zDir;
+			nStep.y = step.y + 1 ;
+			nStep.z = step.z + zDirUp;
+			break;
+
+			// Oben-Süd
+		case Neighbors.TOP_SOUTH:
+			nStep.x = step.x + (xDir * (1 - zDirUp)) - zDirDown;
+			nStep.y = step.y + 1;
+			nStep.z = step.z - 1 + zDirUp;
+			break;
+
+			// Ost
+		case Neighbors.EAST:
+			nStep.x = step.x + 1;
+			nStep.y = step.y;
+			nStep.z = step.z;
+			break;
+
+			// Nord-Ost
+		case Neighbors.NORTH_EAST:
+			nStep.x = step.x + xDir;
+			nStep.y = step.y;
+			nStep.z = step.z + 1;
+			break;
+
+			// Nord-West
+		case Neighbors.NORTH_WEST:
+			nStep.x = step.x - 1 + xDir;
+			nStep.y = step.y;
+			nStep.z = step.z + 1;
+			break;
+
+			// West
+		case Neighbors.WEST:
+			nStep.x = step.x - 1;
+			nStep.y = step.y;
+			nStep.z = step.z;
+			break;
+
+			// Süd-West
+		case Neighbors.SOUTH_WEST:
+			nStep.x = step.x - 1 + xDir;
+			nStep.y = step.y;
+			nStep.z = step.z - 1;
+			break;
+
+			// Süd-Ost
+		case Neighbors.SOUTH_EAST:
+			nStep.x = step.x + xDir;
+			nStep.y = step.y;
+			nStep.z = step.z - 1;
+			break;
+
+			// Unten-Nord
+		case Neighbors.BOTTOM_NORTH:
+			nStep.x = step.x - zDirUp + (xDir * (1 - zDirDown));
+			nStep.y = step.y - 1;
+			nStep.z = step.z + 1 - zDirDown;
+			break;
+
+			// Unten-Süd-West
+		case Neighbors.BOTTOM_SOUTH_WEST:
+			nStep.x = step.x - 1 + zDir + (xDir * zDirDown);
+			nStep.y = step.y - 1 ;
+			nStep.z = step.z - zDirDown;
+			break;
+
+			// Unten-Süd-Ost
+		case Neighbors.BOTTON_SOUTH_EAST:
+			nStep.x = step.x + zDir + (xDir * zDirDown);
+			nStep.y = step.y - 1;
+			nStep.z = step.z - zDirDown;
+			break;
+		}
+		return nStep;
+	}
+
+	private void CalcCorrectionValues(Index3 step, out int xDir, out int zDirDown, out int zDir, out int zDirUp)
+	{
+		xDir = step.z % 2;
+		zDirDown = (step.y % 3 == 0) ? 1 : 0;
+		zDir = (step.y % 3 == 1) ? 1 : 0;
+		zDirUp = (step.y % 3 == 2) ? 1 : 0;
+	}
+
+	public Index3 GetNeighborStep(Index3 step, Neighbors neighbor)
+	{
+		int xDir;
+		int zDirDown;
+		int zDir;
+		int zDirUp;
+		CalcCorrectionValues (step, out xDir, out zDirDown, out zDir, out zDirUp);
+		
+		return CalcNeighborStep(step, neighbor, xDir, zDirDown, zDir, zDirUp);
+	}
+
 	public Index3[] GetAllNeighborSteps(Index3 step)
 	{
-		List<Index3> nb = new List<Index3>();
-		
-		int xDir = step.z % 2;
-		int zDirUp = (step.y % 3 == 2) ? 1 : 0;
-		int zDir = (step.y % 3 == 1) ? 1 : 0;
-		int zDirDown = (step.y % 3 == 0) ? 1 : 0;
+		var enumVals = System.Enum.GetValues (typeof(Neighbors));
+		var nbs = new Index3[enumVals.Length];
 
-		Index3 nSteps = new Index3();
-		
-		// Oben-Nord-Ost
-		nSteps.x = step.x + (xDir * zDirUp) + zDir;
-		nSteps.y = step.y + 1;
-		nSteps.z = step.z + zDirUp;
-		nb.Add(nSteps);
+		int xDir;
+		int zDirDown;
+		int zDir;
+		int zDirUp;
+		CalcCorrectionValues (step, out xDir, out zDirDown, out zDir, out zDirUp);
 
-		// Oben-Nord-West
-		nSteps.x = step.x - 1 + (xDir * zDirUp) + zDir;
-		nSteps.y = step.y + 1 ;
-		nSteps.z = step.z + zDirUp;
-		nb.Add(nSteps);
-		
-		// Oben-Süd
-		nSteps.x = step.x + (xDir * (1 - zDirUp)) - zDirDown;
-		nSteps.y = step.y + 1;
-		nSteps.z = step.z - 1 + zDirUp;
-		nb.Add(nSteps);
+		for(int i = 0; i < enumVals.Length; i++)
+		{
+			var nb = (Neighbors)(enumVals.GetValue(i));
+			nbs[i] = CalcNeighborStep(step, nb, xDir, zDirDown, zDir, zDirUp);
+		}
 
-		// Ost
-		nSteps.x = step.x + 1;
-		nSteps.y = step.y;
-		nSteps.z = step.z;
-		nb.Add(nSteps);
-		
-		// Nord-Ost
-		nSteps.x = step.x + xDir;
-		nSteps.y = step.y;
-		nSteps.z = step.z + 1;
-		nb.Add(nSteps);
-
-		// Nord-West
-		nSteps.x = step.x - 1 + xDir;
-		nSteps.y = step.y;
-		nSteps.z = step.z + 1;
-		nb.Add(nSteps);
-
-		// West
-		nSteps.x = step.x - 1;
-		nSteps.y = step.y;
-		nSteps.z = step.z;
-		nb.Add(nSteps);
-		
-		// Süd-West
-		nSteps.x = step.x - 1 + xDir;
-		nSteps.y = step.y;
-		nSteps.z = step.z - 1;
-		nb.Add(nSteps);
-
-		// Süd-Ost
-		nSteps.x = step.x + xDir;
-		nSteps.y = step.y;
-		nSteps.z = step.z - 1;
-		nb.Add(nSteps);
-
-		// Unten-Nord
-		nSteps.x = step.x - zDirUp + (xDir * (1 - zDirDown));
-		nSteps.y = step.y - 1;
-		nSteps.z = step.z + 1 - zDirDown;
-		nb.Add(nSteps);
-
-		// Unten-Süd-West
-		nSteps.x = step.x - 1 + zDir + (xDir * zDirDown);
-		nSteps.y = step.y - 1 ;
-		nSteps.z = step.z - zDirDown;
-		nb.Add(nSteps);
-
-		// Unten-Süd-Ost
-		nSteps.x = step.x + zDir + (xDir * zDirDown);
-		nSteps.y = step.y - 1;
-		nSteps.z = step.z - zDirDown;
-		nb.Add(nSteps);
-
-		return nb.ToArray();
+		return nbs;
 	}
 }

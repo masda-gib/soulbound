@@ -1,9 +1,8 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\TerrainGeneration\TerrainCell.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="..\TerrainTest2\Assets\Scripts\Terrain\TerrainCell.cs">
     <Files>
-      <File FileName="Assets\Scripts\TerrainGeneration\TerrainCell.cs" Line="7" Column="15" />
-      <File FileName="Assets\Scripts\TerrainGeneration\PagingTerrain.cs" Line="120" Column="8" />
+      <File FileName="..\TerrainTest2\Assets\Scripts\Terrain\TerrainCell.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
