@@ -1,9 +1,9 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace />
-  <MonoDevelop.Ide.Workbench ActiveDocument="..\Flugtest\Assets\Standard Assets\Character Controllers\Sources\Scripts\FPSInputController.js">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\TerrainGeneration\TerrainCell.cs">
     <Files>
-      <File FileName="..\Flugtest\Assets\Standard Assets\Character Controllers\Sources\Scripts\CharacterMotor.js" Line="95" Column="32" />
-      <File FileName="..\Flugtest\Assets\Standard Assets\Character Controllers\Sources\Scripts\FPSInputController.js" Line="18" Column="3" />
+      <File FileName="Assets\Scripts\TerrainGeneration\TerrainCell.cs" Line="7" Column="15" />
+      <File FileName="Assets\Scripts\TerrainGeneration\PagingTerrain.cs" Line="120" Column="8" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

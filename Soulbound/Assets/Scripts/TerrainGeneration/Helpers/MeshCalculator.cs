@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -48,7 +48,7 @@ class MeshCalculator
 
     public MeshInfo Calculate()
     {
-        for (int i = 0; i < mCell.mCrystals.Length; i++)
+        for (int i = 0; i < mCell.crystalValues.Length; i++)
         {
             int[] neighbors = mCell.GetNeighborCrystalIndices(i);
 
@@ -504,7 +504,7 @@ class MeshCalculator
 
     private bool IsCrystalSolid(int index)
     {
-        return (mCell.mCrystals[index] > 0);
+        return (mCell.crystalValues[index] > 0);
     }
 
     private int[] FindMinority(int[] indices)

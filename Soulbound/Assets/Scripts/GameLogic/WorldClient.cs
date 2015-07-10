@@ -39,7 +39,7 @@ public class WorldClient : MonoBehaviour
 		//netView.viewID = id;
 		ownPlayer = netView;
 
-		networkView.RPC("LoginRequest", RPCMode.Server, "Testplayer", netID);
+		GetComponent<NetworkView>().RPC("LoginRequest", RPCMode.Server, "Testplayer", netID);
 	}
 
 	void OnDisconnectedFromServer (NetworkDisconnection info)

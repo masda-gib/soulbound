@@ -14,18 +14,18 @@ public class WorldServer : MonoBehaviour
 	public int radiusInCells = 10;
 
 	private TerrainData data;
-	private List<Player> players;
+	//private List<Player> players;
 
 	// Use this for initialization
 	void Start ()
 	{
-		players = new List<Player>();
+		//players = new List<Player>();
 
 		data = new TerrainData();
-		data.Generator = new TestGenerator();
-		data.Generator.SetParameter("seed", seed);
-		data.Generator.SetParameter("radius_cells", radiusInCells);
-		data.Generator.Initialize();
+//		data.Generator = new TestGenerator();
+//		data.Generator.SetParameter("seed", seed);
+//		data.Generator.SetParameter("radius_cells", radiusInCells);
+//		data.Generator.Initialize();
 
 		//data.saveDataFolder = Application.persistentDataPath + "/" + name + "/";
 
@@ -61,9 +61,9 @@ public class WorldServer : MonoBehaviour
 	[RPC]
 	public void LoginRequest (string name, NetworkMessageInfo info, NetworkViewID netID)
 	{
-		Player newPlayer = new Player(name);
-		newPlayer.netPlayer = info.sender;
-		players.Add(newPlayer);
+		//Player newPlayer = new Player(name);
+		//newPlayer.netPlayer = info.sender;
+		//players.Add(newPlayer);
 
 		GameObject playerGo = (GameObject)GameObject.Instantiate (playerRep);
 		playerGo.name = "Player " + name;
@@ -71,7 +71,7 @@ public class WorldServer : MonoBehaviour
 		NetworkView netView = playerGo.AddComponent<NetworkView>();
 		netView.viewID = netID;
 
-		networkView.RPC ("LoginResponse", info.sender, true);
+		GetComponent<NetworkView>().RPC ("LoginResponse", info.sender, true);
 
 		Debug.Log("Client logged in");
 	}
