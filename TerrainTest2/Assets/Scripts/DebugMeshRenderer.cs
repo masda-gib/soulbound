@@ -6,19 +6,35 @@ using CrystalWorld;
 public class DebugMeshRenderer : MonoBehaviour {
 
 	public ServiceTestRenderer sr;
+	public bool generateTerrain;
+	public Material[] mats;
 	public Index3 debugIndex;
 
+	private MeshGenerationService mgs;
 	private Index3 _lastIndex;
 	private GameObject renderGo;
 	private MeshFilter renderMf;
 
 	// Use this for initialization
 	void Start () {
+		mgs = new MeshGenerationService ();
 		renderGo = new GameObject ("DebugRenderer");
 		renderMf = renderGo.AddComponent<MeshFilter> ();
-		var r = renderGo.AddComponent<MeshRenderer> ();
-		r.enabled = true;
+		var renderMr = renderGo.AddComponent<MeshRenderer> ();
+		renderMr.materials = mats;
 		renderGo.transform.parent = this.transform;
+
+		if (generateTerrain) {
+			foreach (var c in sr.CellService) {
+				var terrainGo = new GameObject ("TerrainRenderer");
+				var terrainMf = terrainGo.AddComponent<MeshFilter> ();
+				terrainGo.transform.parent = this.transform;
+				terrainGo.transform.position = c.pos;
+				terrainMf.mesh = mgs.GenerateMesh (c, sr.CellService);
+				var terrainMr = terrainGo.AddComponent<MeshRenderer> ();
+				terrainMr.materials = mats;
+			}
+		}
 	}
 	
 	// Update is called once per frame
@@ -27,49 +43,12 @@ public class DebugMeshRenderer : MonoBehaviour {
 		if (_lastIndex.x != debugIndex.x || _lastIndex.y != debugIndex.y || _lastIndex.z != debugIndex.z) {
 			_lastIndex = debugIndex;
 
-			Mesh debugMesh = CreateMesh (_lastIndex, sr.CellService);
+			var c = sr.CellService.GetCrystalInfoAtStep (_lastIndex);
+			Mesh debugMesh = mgs.GenerateMesh (c, sr.CellService);
 			renderMf.mesh = debugMesh;
 			renderGo.transform.position = sr.CellService.GetPositionAtStep (_lastIndex);
 		}
 		
-	}
-
-	private Mesh CreateMesh(Index3 index3, CrystalCellService service) {
-		Mesh m = new Mesh ();
-
-		List<Index3> indices3 = new List<Index3> ();
-		List<Vector3> positions = new List<Vector3> ();
-
-		indices3.Add(index3);
-		indices3.Add(service.GetNeighborStep (indices3[0], Neighbors.TOP_NORTH_EAST));
-		indices3.Add(service.GetNeighborStep (indices3[0], Neighbors.NORTH_EAST));
-		indices3.Add(service.GetNeighborStep (indices3[0], Neighbors.NORTH_WEST));
-		indices3.Add(service.GetNeighborStep (indices3[0], Neighbors.TOP_NORTH_WEST));
-		indices3.Add(service.GetNeighborStep (indices3[1], Neighbors.NORTH_WEST));
-
-		var basePos = service.GetPositionAtStep (indices3 [0]);
-		foreach (var i in indices3) {
-			var pos = service.GetPositionAtStep (i);
-			positions.Add (pos - basePos);
-		}
-
-		List<int> tris = new List<int>(new int[] {
-			0, 1, 2, 
-			0, 2, 3, 
-			0, 3, 4, 
-			0, 4, 1, 
-			5, 1, 4, 
-			5, 4, 3, 
-			5, 3, 2, 
-			5, 2, 1 
-		});
-
-		m.SetVertices (positions);
-		m.SetTriangles (tris, 0);
-		m.RecalculateBounds ();
-		m.RecalculateNormals ();
-
-		return m;
 	}
 
 }
