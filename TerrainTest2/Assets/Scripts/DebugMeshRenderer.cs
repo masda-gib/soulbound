@@ -10,14 +10,16 @@ public class DebugMeshRenderer : MonoBehaviour {
 	public Material[] mats;
 	public Index3 debugIndex;
 
-	private MeshGenerationService mgs;
+	private MeshGenerationService mgs1;
+	private MeshGenerationService2 mgs2;
 	private Index3 _lastIndex;
 	private GameObject renderGo;
 	private MeshFilter renderMf;
 
 	// Use this for initialization
 	void Start () {
-		mgs = new MeshGenerationService ();
+		mgs1 = new MeshGenerationService ();
+		mgs2 = new MeshGenerationService2 ();
 		renderGo = new GameObject ("DebugRenderer");
 		renderMf = renderGo.AddComponent<MeshFilter> ();
 		var renderMr = renderGo.AddComponent<MeshRenderer> ();
@@ -30,7 +32,7 @@ public class DebugMeshRenderer : MonoBehaviour {
 				var terrainMf = terrainGo.AddComponent<MeshFilter> ();
 				terrainGo.transform.parent = this.transform;
 				terrainGo.transform.position = c.pos;
-				terrainMf.mesh = mgs.GenerateMesh (c, sr.CellService);
+				terrainMf.mesh = mgs2.GenerateMesh (c, sr.CellService, sr.TerrainService);
 				var terrainMr = terrainGo.AddComponent<MeshRenderer> ();
 				terrainMr.materials = mats;
 			}
@@ -44,7 +46,7 @@ public class DebugMeshRenderer : MonoBehaviour {
 			_lastIndex = debugIndex;
 
 			var c = sr.CellService.GetCrystalInfoAtStep (_lastIndex);
-			Mesh debugMesh = mgs.GenerateMesh (c, sr.CellService);
+			Mesh debugMesh = mgs1.GenerateMesh (c, sr.CellService, sr.TerrainService);
 			renderMf.mesh = debugMesh;
 			renderGo.transform.position = sr.CellService.GetPositionAtStep (_lastIndex);
 		}

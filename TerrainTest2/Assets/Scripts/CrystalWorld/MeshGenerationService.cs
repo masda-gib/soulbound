@@ -6,7 +6,7 @@ namespace CrystalWorld {
 
 	public class MeshGenerationService {
 
-		public Mesh GenerateMesh (CrystalInfo crystal, CrystalCellService cellService) {
+		public Mesh GenerateMesh (CrystalInfo crystal, CrystalCellService cellService, CrystalTerrainService terrainService) {
 
 			Mesh m = new Mesh ();
 
