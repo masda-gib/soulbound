@@ -1,14 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace CrystalWorld {
 
-	public class MeshGenerationService {
+	public class MeshGenerationService : ICrystalMeshInfoGenerator {
 
-		public Mesh GenerateMesh (CrystalInfo crystal, CrystalCellService cellService, CrystalTerrainService terrainService) {
-
-			Mesh m = new Mesh ();
+		public MeshInfo GenerateMeshInfo (CrystalInfo crystal, CrystalCellService cellService, CrystalTerrainService terrainService) {
 
 			List<Index3> indices3 = new List<Index3> ();
 			List<Vector3> positions = new List<Vector3> ();
@@ -53,15 +52,12 @@ namespace CrystalWorld {
 				7, 4, 1 
 			});
 
-			m.SetVertices (positions);
-			m.subMeshCount = 3;
-			m.SetTriangles (tris0, 0);
-			m.SetTriangles (tris1, 1);
-			m.SetTriangles (tris2, 2);
-			m.RecalculateBounds ();
-			m.RecalculateNormals ();
+			var mi = new MeshInfo ();
+			mi.positionTolerance = 0.1f * cellService.spacing;
+			mi.vertices = positions.ToArray();
+			mi.indices = tris0.Concat(tris1).Concat(tris2).ToArray();
 
-			return m;
+			return mi;
 
 		}
 

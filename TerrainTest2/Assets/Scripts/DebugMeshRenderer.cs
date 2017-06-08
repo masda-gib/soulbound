@@ -17,7 +17,6 @@ public class DebugMeshRenderer : MonoBehaviour {
 	private Index3 _lastIndex;
 	private GameObject renderGo;
 	private MeshFilter renderMf;
-	private MeshRenderer renderMr;
 
 	// Use this for initialization
 	void Start () {
@@ -25,7 +24,8 @@ public class DebugMeshRenderer : MonoBehaviour {
 		mgs2 = new MeshGenerationService2 ();
 		renderGo = new GameObject ("DebugRenderer");
 		renderMf = renderGo.AddComponent<MeshFilter> ();
-		renderMr = renderGo.AddComponent<MeshRenderer> ();
+		var renderMr = renderGo.AddComponent<MeshRenderer> ();
+		renderMr.material = mat;
 		renderGo.transform.parent = this.transform;
 
 		if (debugTerrain) {
@@ -35,12 +35,11 @@ public class DebugMeshRenderer : MonoBehaviour {
 					var terrainMf = terrainGo.AddComponent<MeshFilter> ();
 					terrainGo.transform.parent = this.transform;
 					terrainGo.transform.position = c.pos;
-					terrainMf.mesh = mgs1.GenerateMesh (c, sr.CellService, sr.TerrainService);
+
+					var mi = mgs1.GenerateMeshInfo (c, sr.CellService, sr.TerrainService);
+					terrainMf.mesh = ConvertToMesh(mi);
 					var terrainMr = terrainGo.AddComponent<MeshRenderer> ();
-					terrainMr.materials = new Material[terrainMf.mesh.subMeshCount];
-					for (int i = 0; i < terrainMr.materials.Length; i++) {
-						terrainMr.materials [i] = mat;
-					}
+					terrainMr.material = mat;
 				}
 			}
 		}
@@ -62,7 +61,7 @@ public class DebugMeshRenderer : MonoBehaviour {
 				}
 			}
 
-			terrainMf.mesh = mgs2.ConvertToMesh (mi);
+			terrainMf.mesh = ConvertToMesh (mi);
 			var terrainMr = terrainGo.AddComponent<MeshRenderer> ();
 			terrainMr.material = mat;
 		}
@@ -75,16 +74,26 @@ public class DebugMeshRenderer : MonoBehaviour {
 			_lastIndex = debugIndex;
 
 			var c = sr.CellService.GetCrystalInfoAtStep (_lastIndex);
-			Mesh debugMesh = mgs1.GenerateMesh (c, sr.CellService, sr.TerrainService);
-			renderMf.mesh = debugMesh;
-			renderMr.materials = new Material[renderMf.mesh.subMeshCount];
-			for (int i = 0; i < renderMr.materials.Length; i++) {
-				renderMr.materials [i] = mat;
-			}
+
+			var mi = mgs1.GenerateMeshInfo (c, sr.CellService, sr.TerrainService);
+			renderMf.mesh = ConvertToMesh (mi);
 			renderGo.transform.position = sr.CellService.GetPositionAtStep (_lastIndex);
 			renderGo.name = "Debug: " + c.step.x.ToString() + ", " + c.step.y.ToString() + ", " + c.step.z.ToString();
 		}
 		
+	}
+
+	protected Mesh ConvertToMesh(MeshInfo mi) {
+		Mesh m = new Mesh ();
+
+		if (mi.IsValid) {
+			m.SetVertices (mi.vertices.ToList ());
+			m.SetTriangles (mi.indices.ToList (), 0);
+			m.RecalculateBounds ();
+			m.RecalculateNormals ();
+		}
+
+		return m;
 	}
 
 }

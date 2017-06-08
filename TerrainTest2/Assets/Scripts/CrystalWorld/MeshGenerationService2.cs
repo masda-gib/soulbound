@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace CrystalWorld {
 
-	public class MeshGenerationService2 {
+	public class MeshGenerationService2 : ICrystalMeshInfoGenerator {
 
 		private struct PositionTerrainInfo {
 			public Vector3 position;
@@ -78,19 +78,6 @@ namespace CrystalWorld {
 			// TODO: Some PointMeshes for both, 4 and 6 segments, don't generate
 
 			return mi;
-		}
-
-		public Mesh ConvertToMesh(MeshInfo mi) {
-			Mesh m = new Mesh ();
-
-			if (mi.IsValid) {
-				m.SetVertices (mi.vertices.ToList ());
-				m.SetTriangles (mi.indices.ToList (), 0);
-				m.RecalculateBounds ();
-				m.RecalculateNormals ();
-			}
-
-			return m;
 		}
 
 		private MeshInfo BuildSegmentMesh (PositionTerrainInfo[] data) {
