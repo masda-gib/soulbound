@@ -2,36 +2,36 @@
 using System.Collections;
 using System;
 
-[System.Serializable]
-public struct Index3
-{
-	public int x;
-	public int y;
-	public int z;
-
-	public Index3(int x, int y, int z)
-	: this()
-	{
-		this.x = x;
-		this.y = y;
-		this.z = z;
-	}
-
-	public static Vector3 operator * (Index3 ind, Vector3 vec)
-	{
-		return new Vector3 (ind.x * vec.x, ind.y * vec.y, ind.z * vec.z);
-	}
-
-	public bool Equals (Index3 other)
-	{
-		return (this.x == other.x && this.y == other.y && this.z == other.z);
-	}
-
-	public override string ToString ()
-	{
-		return "[" + x + ", " + y + ", " + z + "]";
-	}
-}
+//[System.Serializable]
+//public struct Index3
+//{
+//	public int x;
+//	public int y;
+//	public int z;
+//
+//	public Index3(int x, int y, int z)
+//	: this()
+//	{
+//		this.x = x;
+//		this.y = y;
+//		this.z = z;
+//	}
+//
+//	public static Vector3 operator * (Index3 ind, Vector3 vec)
+//	{
+//		return new Vector3 (ind.x * vec.x, ind.y * vec.y, ind.z * vec.z);
+//	}
+//
+//	public bool Equals (Index3 other)
+//	{
+//		return (this.x == other.x && this.y == other.y && this.z == other.z);
+//	}
+//
+//	public override string ToString ()
+//	{
+//		return "[" + x + ", " + y + ", " + z + "]";
+//	}
+//}
 
 public static class TerrainHelpers
 {

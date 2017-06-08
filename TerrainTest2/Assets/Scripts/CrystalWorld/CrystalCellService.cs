@@ -39,16 +39,16 @@ namespace CrystalWorld {
 		public Vector3 GetPositionAtStep(Index3 step)
 		{
 			var dims = this.Dimensions;
-			float xCoord = (-0.5f * dims.x) + ((step.x + 0.5f) * spacing);
-			float yCoord = (-0.5f * dims.y) + ((step.y + 0.5f) * spacing * yFactor);
-			float zCoord = (-0.5f * dims.z) + ((step.z + 0.5f) * spacing * zFactor);
+			float xCoord = (-0.5f * dims.x) + ((step.east + 0.5f) * spacing);
+			float yCoord = (-0.5f * dims.y) + ((step.up + 0.5f) * spacing * yFactor);
+			float zCoord = (-0.5f * dims.z) + ((step.north + 0.5f) * spacing * zFactor);
 
-			if (step.z % 2 == 0) 
+			if (step.north % 2 == 0) 
 			{
 				xCoord -= spacing / 2.0f;
 			}
 
-			switch (step.y % 3)
+			switch (step.up % 3)
 			{
 			case 0:
 				zCoord -= spacing * zFactor / 3f; // eigentlich /3, aber dann muss x-Versatz umgekehrt werden, wenn yStep%3 = 1
@@ -71,86 +71,86 @@ namespace CrystalWorld {
 			{
 			// Oben-Nord-Ost
 			case Neighbors.TOP_NORTH_EAST:
-				nStep.x = step.x + (xDir * zDirUp) + zDir;
-				nStep.y = step.y + 1;
-				nStep.z = step.z + zDirUp;
+				nStep.east = step.east + (xDir * zDirUp) + zDir;
+				nStep.up = step.up + 1;
+				nStep.north = step.north + zDirUp;
 				break;
 
 				// Oben-Nord-West
 			case Neighbors.TOP_NORTH_WEST:
-				nStep.x = step.x - 1 + (xDir * zDirUp) + zDir;
-				nStep.y = step.y + 1 ;
-				nStep.z = step.z + zDirUp;
+				nStep.east = step.east - 1 + (xDir * zDirUp) + zDir;
+				nStep.up = step.up + 1 ;
+				nStep.north = step.north + zDirUp;
 				break;
 
 				// Oben-Süd
 			case Neighbors.TOP_SOUTH:
-				nStep.x = step.x + (xDir * (1 - zDirUp)) - zDirDown;
-				nStep.y = step.y + 1;
-				nStep.z = step.z - 1 + zDirUp;
+				nStep.east = step.east + (xDir * (1 - zDirUp)) - zDirDown;
+				nStep.up = step.up + 1;
+				nStep.north = step.north - 1 + zDirUp;
 				break;
 
 				// Ost
 			case Neighbors.EAST:
-				nStep.x = step.x + 1;
-				nStep.y = step.y;
-				nStep.z = step.z;
+				nStep.east = step.east + 1;
+				nStep.up = step.up;
+				nStep.north = step.north;
 				break;
 
 				// Nord-Ost
 			case Neighbors.NORTH_EAST:
-				nStep.x = step.x + xDir;
-				nStep.y = step.y;
-				nStep.z = step.z + 1;
+				nStep.east = step.east + xDir;
+				nStep.up = step.up;
+				nStep.north = step.north + 1;
 				break;
 
 				// Nord-West
 			case Neighbors.NORTH_WEST:
-				nStep.x = step.x - 1 + xDir;
-				nStep.y = step.y;
-				nStep.z = step.z + 1;
+				nStep.east = step.east - 1 + xDir;
+				nStep.up = step.up;
+				nStep.north = step.north + 1;
 				break;
 
 				// West
 			case Neighbors.WEST:
-				nStep.x = step.x - 1;
-				nStep.y = step.y;
-				nStep.z = step.z;
+				nStep.east = step.east - 1;
+				nStep.up = step.up;
+				nStep.north = step.north;
 				break;
 
 				// Süd-West
 			case Neighbors.SOUTH_WEST:
-				nStep.x = step.x - 1 + xDir;
-				nStep.y = step.y;
-				nStep.z = step.z - 1;
+				nStep.east = step.east - 1 + xDir;
+				nStep.up = step.up;
+				nStep.north = step.north - 1;
 				break;
 
 				// Süd-Ost
 			case Neighbors.SOUTH_EAST:
-				nStep.x = step.x + xDir;
-				nStep.y = step.y;
-				nStep.z = step.z - 1;
+				nStep.east = step.east + xDir;
+				nStep.up = step.up;
+				nStep.north = step.north - 1;
 				break;
 
 				// Unten-Nord
 			case Neighbors.BOTTOM_NORTH:
-				nStep.x = step.x - zDirUp + (xDir * (1 - zDirDown));
-				nStep.y = step.y - 1;
-				nStep.z = step.z + 1 - zDirDown;
+				nStep.east = step.east - zDirUp + (xDir * (1 - zDirDown));
+				nStep.up = step.up - 1;
+				nStep.north = step.north + 1 - zDirDown;
 				break;
 
 				// Unten-Süd-West
 			case Neighbors.BOTTOM_SOUTH_WEST:
-				nStep.x = step.x - 1 + zDir + (xDir * zDirDown);
-				nStep.y = step.y - 1 ;
-				nStep.z = step.z - zDirDown;
+				nStep.east = step.east - 1 + zDir + (xDir * zDirDown);
+				nStep.up = step.up - 1 ;
+				nStep.north = step.north - zDirDown;
 				break;
 
 				// Unten-Süd-Ost
 			case Neighbors.BOTTON_SOUTH_EAST:
-				nStep.x = step.x + zDir + (xDir * zDirDown);
-				nStep.y = step.y - 1;
-				nStep.z = step.z - zDirDown;
+				nStep.east = step.east + zDir + (xDir * zDirDown);
+				nStep.up = step.up - 1;
+				nStep.north = step.north - zDirDown;
 				break;
 			}
 			return nStep;
@@ -158,10 +158,10 @@ namespace CrystalWorld {
 
 		private void CalcCorrectionValues(Index3 step, out int xDir, out int zDirDown, out int zDir, out int zDirUp)
 		{
-			xDir = step.z % 2;
-			zDirDown = (step.y % 3 == 0) ? 1 : 0;
-			zDir = (step.y % 3 == 1) ? 1 : 0;
-			zDirUp = (step.y % 3 == 2) ? 1 : 0;
+			xDir = step.north % 2;
+			zDirDown = (step.up % 3 == 0) ? 1 : 0;
+			zDir = (step.up % 3 == 1) ? 1 : 0;
+			zDirUp = (step.up % 3 == 2) ? 1 : 0;
 		}
 
 		public Index3 GetNeighborStep(Index3 step, Neighbors neighbor)
@@ -200,11 +200,11 @@ namespace CrystalWorld {
 		public IEnumerator<CrystalInfo> GetEnumerator ()
 		{
 			var maxInd = MaxStep;
-			for (int y = 0; y < maxInd.y; y++) 
+			for (int y = 0; y < maxInd.up; y++) 
 			{
-				for (int z = 0; z < maxInd.z; z++) 
+				for (int z = 0; z < maxInd.north; z++) 
 				{
-					for (int x = 0; x < maxInd.x; x++) 
+					for (int x = 0; x < maxInd.east; x++) 
 					{
 						var index3 = new Index3(x, y, z);
 						yield return GetCrystalInfoAtStep (index3);

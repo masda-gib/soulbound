@@ -10,7 +10,9 @@ public class DebugMeshRenderer : MonoBehaviour {
 	public bool generateTerrain;
 	public bool debugTerrain;
 	public Material mat;
-	public Index3 debugIndex;
+	public int debugEast;
+	public int debugNorth;
+	public int debugUp;
 
 	private MeshGenerationService mgs1;
 	private MeshGenerationService2 mgs2;
@@ -70,15 +72,15 @@ public class DebugMeshRenderer : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-		if (_lastIndex.x != debugIndex.x || _lastIndex.y != debugIndex.y || _lastIndex.z != debugIndex.z) {
-			_lastIndex = debugIndex;
+		if (_lastIndex.east != debugEast || _lastIndex.up != debugUp || _lastIndex.north != debugNorth) {
+			_lastIndex = new Index3(debugEast, debugUp, debugNorth);
 
 			var c = sr.CellService.GetCrystalInfoAtStep (_lastIndex);
 
 			var mi = mgs1.GenerateMeshInfo (c, sr.CellService, sr.TerrainService);
 			renderMf.mesh = ConvertToMesh (mi);
 			renderGo.transform.position = sr.CellService.GetPositionAtStep (_lastIndex);
-			renderGo.name = "Debug: " + c.step.x.ToString() + ", " + c.step.y.ToString() + ", " + c.step.z.ToString();
+			renderGo.name = "Debug: " + c.step.ToString();
 		}
 		
 	}
