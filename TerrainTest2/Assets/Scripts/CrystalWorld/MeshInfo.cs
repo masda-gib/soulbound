@@ -13,21 +13,24 @@ namespace CrystalWorld {
 
 		public int[] indices;
 
-		public bool isValid {
+		public float positionTolerance;
+
+		public bool IsValid {
 			get { return vertices != null && indices != null; }
 		}
 
-		public MeshInfo(int points, int tris)
+		public void Init(int points, int tris, float positionTolerance)
 		{
 			vertices = new Vector3[points];
 			normals = new Vector3[points];
 			uvs = new Vector3[points];
 			indices = new int[tris * 3];
+			this.positionTolerance = positionTolerance;
 		}
 
 		public void Append(MeshInfo other)
 		{
-			if (!(this.isValid && other.isValid)) {
+			if (!(this.IsValid && other.IsValid)) {
 				return;
 			}
 
@@ -36,12 +39,19 @@ namespace CrystalWorld {
 
 			var o = 0;
 			foreach (var p in other.vertices) {
-				var i = System.Array.IndexOf (this.vertices, p);
-				if (i < 0) {
+
+				var vIndex = -1;
+				for (int i = 0; i < this.vertices.Length; i++) {
+					if (Vector3.Distance (this.vertices [i], p) <= positionTolerance) {
+						vIndex = i;
+					}
+				}
+
+				if (vIndex < 0) {
 					pointMap.Add (o, this.vertices.Length + newVerts.Count);
 					newVerts.Add (p);
 				} else {
-					pointMap.Add (o, i);
+					pointMap.Add (o, vIndex);
 				}
 				o++;
 			}

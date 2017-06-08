@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 [System.Serializable]
 public struct Index3
@@ -19,6 +20,11 @@ public struct Index3
 	public static Vector3 operator * (Index3 ind, Vector3 vec)
 	{
 		return new Vector3 (ind.x * vec.x, ind.y * vec.y, ind.z * vec.z);
+	}
+
+	public bool Equals (Index3 other)
+	{
+		return (this.x == other.x && this.y == other.y && this.z == other.z);
 	}
 
 	public override string ToString ()

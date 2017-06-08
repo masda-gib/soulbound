@@ -41,9 +41,7 @@ namespace CrystalWorld {
 			new Edge(1,2), new Edge(2,3), new Edge(3,4), new Edge(4,1)  // rim
 		};
 
-		public Mesh GenerateMesh (CrystalInfo crystal, CrystalCellService cellService, CrystalTerrainService terrainService) {
-
-			Mesh m = new Mesh ();
+		public MeshInfo GenerateMeshInfo (CrystalInfo crystal, CrystalCellService cellService, CrystalTerrainService terrainService) {
 
 			List<Index3> indices3 = new List<Index3> ();
 			List<PositionTerrainInfo> allData = new List<PositionTerrainInfo> ();
@@ -67,6 +65,9 @@ namespace CrystalWorld {
 			// 6-point base segment
 			var currData = new PositionTerrainInfo[] { allData [0], allData [1], allData [2], allData [3], allData [4], allData [5] };
 			var mi = BuildSegmentMesh (currData);
+			if (!(mi.IsValid)) {
+				mi.Init (0, 0, 0.1f);
+			}
 			// first 4-point segment
 			currData = new PositionTerrainInfo[] { allData [0], allData [1], allData [2], allData [6] };
 			mi.Append(BuildSegmentMesh (currData));
@@ -74,8 +75,15 @@ namespace CrystalWorld {
 			currData = new PositionTerrainInfo[] { allData [0], allData [1], allData [4], allData [7] };
 			mi.Append(BuildSegmentMesh (currData));
 
+			// TODO: Some PointMeshes for both, 4 and 6 segments, don't generate
 
-			if (mi.isValid) {
+			return mi;
+		}
+
+		public Mesh ConvertToMesh(MeshInfo mi) {
+			Mesh m = new Mesh ();
+
+			if (mi.IsValid) {
 				m.SetVertices (mi.vertices.ToList ());
 				m.SetTriangles (mi.indices.ToList (), 0);
 				m.RecalculateBounds ();
@@ -83,15 +91,14 @@ namespace CrystalWorld {
 			}
 
 			return m;
-
 		}
 
 		private MeshInfo BuildSegmentMesh (PositionTerrainInfo[] data) {
 			var minority = FindMinority (data);
 
 			switch (data.Length) {
-//			case 4:
-//				return Build4SegmentMesh (data, minority);
+			case 4:
+				return Build4SegmentMesh (data, minority);
 			case 6:
 				return Build6SegmentMesh (data, minority);
 			default:
@@ -104,7 +111,7 @@ namespace CrystalWorld {
 			case 1:
 				return BuildPoint (data, minority, Edges4);
 			case 2:
-				return BuildLine (data, minority, false);
+				return BuildLine (data, minority, Edges4, false);
 			default:
 				return new MeshInfo();
 			}
@@ -116,7 +123,7 @@ namespace CrystalWorld {
 				return BuildPoint (data, minority, Edges6);
 			case 2:
 				if (ExistsEdge (minority [0], minority [1], Edges6)) {
-					return BuildLine (data, minority, true);
+					return BuildLine (data, minority, Edges6, true);
 				} else {
 					var p0 = BuildPoint (data, new int[] { minority [0] }, Edges6);
 					var p1 = BuildPoint (data, new int[] { minority [1] }, Edges6);
@@ -148,15 +155,15 @@ namespace CrystalWorld {
 			return CreatePoly (points);
 		}
 
-		private MeshInfo BuildLine(PositionTerrainInfo[] data, int[] minority, bool ensureFirstEdge) {
-			var edges0 = GetWithoutEdge(minority[0], minority[1], GetAdjEdges(minority[0], Edges6));
-			var edges1 = GetWithoutEdge(minority[0], minority[1], GetAdjEdges(minority[1], Edges6));
+		private MeshInfo BuildLine(PositionTerrainInfo[] data, int[] minority, Edge[] edges, bool ensureFirstEdge) {
+			var edges0 = GetWithoutEdge(minority[0], minority[1], GetAdjEdges(minority[0], edges)).ToArray();
+			var edges1 = GetWithoutEdge(minority[0], minority[1], GetAdjEdges(minority[1], edges)).ToArray();
 
 			Edge[] allEdges;
 
 			if (ensureFirstEdge) {
 				var firstEdge = edges0.Where (x => !(edges1.Any (y => y.i2 == x.i2))).First ();
-				edges0 = GetWithoutEdge (firstEdge.i1, firstEdge.i2, edges0);
+				edges0 = GetWithoutEdge (firstEdge.i1, firstEdge.i2, edges0).ToArray();
 
 				allEdges = new Edge[] {firstEdge}.Concat(edges0).Concat (edges1).ToArray();
 			} else {
@@ -173,13 +180,13 @@ namespace CrystalWorld {
 		}
 
 		private MeshInfo BuildPlane(PositionTerrainInfo[] data, int[] minority, Edge[] edges) {
-			var edges0 = GetAdjEdges(minority[0], Edges6);
+			var edges0 = GetAdjEdges(minority[0], edges);
 			edges0 = GetWithoutEdge (minority [0], minority [1], edges0);
 			edges0 = GetWithoutEdge (minority [0], minority [2], edges0);
-			var edges1 = GetAdjEdges(minority[1], Edges6);
+			var edges1 = GetAdjEdges(minority[1], edges);
 			edges1 = GetWithoutEdge (minority [1], minority [0], edges1);
 			edges1 = GetWithoutEdge (minority [1], minority [2], edges1);
-			var edges2 = GetAdjEdges(minority[2], Edges6);
+			var edges2 = GetAdjEdges(minority[2], edges);
 			edges2 = GetWithoutEdge (minority [2], minority [0], edges2);
 			edges2 = GetWithoutEdge (minority [2], minority [1], edges2);
 
@@ -195,14 +202,61 @@ namespace CrystalWorld {
 		}
 
 		private MeshInfo BuildCurve(PositionTerrainInfo[] data, int[] minority, Edge[] edges) {
-			var adjEdges = GetAdjEdges(minority[0], edges).ToArray();
-			var points = adjEdges.Select (ae => (data [ae.i1].position + data [ae.i2].position) / 2.0f).ToArray();
-			var norm = data [adjEdges [0].i2].position - data [adjEdges [0].i1].position;
-			if (data [adjEdges [0].i1].terrainValue <= 0) {
+			var edges0 = GetAdjEdges(minority[0], edges);
+			edges0 = GetWithoutEdge (minority [0], minority [1], edges0);
+			edges0 = GetWithoutEdge (minority [0], minority [2], edges0);
+			var edges1 = GetAdjEdges(minority[1], edges);
+			edges1 = GetWithoutEdge (minority [1], minority [0], edges1);
+			edges1 = GetWithoutEdge (minority [1], minority [2], edges1);
+			var edges2 = GetAdjEdges(minority[2], edges);
+			edges2 = GetWithoutEdge (minority [2], minority [0], edges2);
+			edges2 = GetWithoutEdge (minority [2], minority [1], edges2);
+
+			// find center edges and group
+			var allEdges = edges0.Concat (edges1).Concat (edges2);
+			var edgeGroups = allEdges.GroupBy (x => x.i2);
+			IEnumerable<Edge> centerEdges;
+			var sideEdges = new List<IEnumerable<Edge>>();
+			if (edges0.Count () == 2) {
+				centerEdges = edges0;
+				sideEdges.Add (edges1);
+				sideEdges.Add (edges2);
+			} else if (edges1.Count () == 2) {
+				centerEdges = edges1;
+				sideEdges.Add (edges0);
+				sideEdges.Add (edges2);
+			} else {
+				centerEdges = edges2;
+				sideEdges.Add (edges0);
+				sideEdges.Add (edges1);
+			}
+
+			// create center fold
+			var foldEdges = edgeGroups.Where(x => x.Count() == 3).SelectMany(y => y as IEnumerable<Edge>).ToArray();
+			var firstEdge = centerEdges.First ();
+			foldEdges = new Edge[] {firstEdge}.Concat(GetWithoutEdge(firstEdge.i1, firstEdge.i2, foldEdges)).ToArray();
+
+			var points = foldEdges.Select (ae => (data [ae.i1].position + data [ae.i2].position) / 2.0f).ToArray();
+			var norm = data [firstEdge.i2].position - data [firstEdge.i1].position;
+			if (data [firstEdge.i1].terrainValue <= 0) {
 				norm = -norm;
 			}
 			SortPolyPoints (points, norm);
-			return CreatePoly (points);
+			var mi = CreatePoly (points);
+
+			// create side triangles
+
+			foreach (var side in sideEdges) {
+				points = side.Select (ae => (data [ae.i1].position + data [ae.i2].position) / 2.0f).ToArray();
+				norm = data [side.First().i2].position - data [side.First().i1].position;
+				if (data [side.First().i1].terrainValue <= 0) {
+					norm = -norm;
+				}
+				SortPolyPoints (points, norm);
+				mi.Append(CreatePoly (points));
+			}
+
+			return mi;
 		}
 
 		private void SortPolyPoints(Vector3[] polyPoints, Vector3 norm)
@@ -229,7 +283,8 @@ namespace CrystalWorld {
 
 		private MeshInfo CreatePoly (Vector3[] points) {
 
-			var mi = new MeshInfo (points.Length, points.Length - 2);
+			var mi = new MeshInfo ();
+			mi.Init (points.Length, points.Length - 2, 0.1f);
 			var i = 0;
 			foreach (var p in points) {
 				mi.vertices [i] = p;
