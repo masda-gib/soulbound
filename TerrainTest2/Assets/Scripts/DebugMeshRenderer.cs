@@ -32,7 +32,7 @@ public class DebugMeshRenderer : MonoBehaviour {
 
 		if (debugTerrain) {
 			foreach (var c in sr.CellService) {
-				if (sr.TerrainService.GetvalueAtPosition (c.pos) > 0) {
+				if (sr.TerrainService.GetValueAtPosition (c.pos) > 0) {
 					var terrainGo = new GameObject ("DebugTerrain");
 					var terrainMf = terrainGo.AddComponent<MeshFilter> ();
 					terrainGo.transform.parent = this.transform;
@@ -75,11 +75,11 @@ public class DebugMeshRenderer : MonoBehaviour {
 		if (_lastIndex.east != debugEast || _lastIndex.up != debugUp || _lastIndex.north != debugNorth) {
 			_lastIndex = new Index3(debugEast, debugUp, debugNorth);
 
-			var c = sr.CellService.GetCrystalInfoAtStep (_lastIndex);
+			var c = sr.CellService.GetCellInfo (_lastIndex);
 
 			var mi = mgs1.GenerateMeshInfo (c, sr.CellService, sr.TerrainService);
 			renderMf.mesh = ConvertToMesh (mi);
-			renderGo.transform.position = sr.CellService.GetPositionAtStep (_lastIndex);
+			renderGo.transform.position = sr.CellService.GetPosition (_lastIndex);
 			renderGo.name = "Debug: " + c.step.ToString();
 		}
 		

@@ -5,25 +5,25 @@ using UnityEngine;
 
 namespace CrystalWorld {
 
-	public class MeshGenerationService : ICrystalMeshInfoGenerator {
+	public class MeshGenerationService : ICellMeshInfoGenerator {
 
-		public MeshInfo GenerateMeshInfo (CrystalInfo crystal, CrystalCellService cellService, CrystalTerrainService terrainService) {
+		public MeshInfo GenerateMeshInfo (CellInfo cell, IBlockService blockService, ITerrainService terrainService) {
 
 			List<Index3> indices3 = new List<Index3> ();
 			List<Vector3> positions = new List<Vector3> ();
 
-			indices3.Add(crystal.step);
-			indices3.Add(cellService.GetNeighborStep (indices3[0], Neighbors.TOP_NORTH_EAST));
-			indices3.Add(cellService.GetNeighborStep (indices3[0], Neighbors.NORTH_EAST));
-			indices3.Add(cellService.GetNeighborStep (indices3[0], Neighbors.NORTH_WEST));
-			indices3.Add(cellService.GetNeighborStep (indices3[0], Neighbors.TOP_NORTH_WEST));
-			indices3.Add(cellService.GetNeighborStep (indices3[1], Neighbors.NORTH_WEST));
-			indices3.Add(cellService.GetNeighborStep (indices3[0], Neighbors.EAST));
-			indices3.Add(cellService.GetNeighborStep (indices3[0], Neighbors.TOP_SOUTH));
+			indices3.Add(cell.step);
+			indices3.Add(blockService.GetNeighborStep (indices3[0], Neighbors.TOP_NORTH_EAST));
+			indices3.Add(blockService.GetNeighborStep (indices3[0], Neighbors.NORTH_EAST));
+			indices3.Add(blockService.GetNeighborStep (indices3[0], Neighbors.NORTH_WEST));
+			indices3.Add(blockService.GetNeighborStep (indices3[0], Neighbors.TOP_NORTH_WEST));
+			indices3.Add(blockService.GetNeighborStep (indices3[1], Neighbors.NORTH_WEST));
+			indices3.Add(blockService.GetNeighborStep (indices3[0], Neighbors.EAST));
+			indices3.Add(blockService.GetNeighborStep (indices3[0], Neighbors.TOP_SOUTH));
 
-			var basePos = cellService.GetPositionAtStep (indices3 [0]);
+			var basePos = blockService.GetPosition (indices3 [0]);
 			foreach (var i in indices3) {
-				var pos = cellService.GetPositionAtStep (i);
+				var pos = blockService.GetPosition (i);
 				positions.Add (pos - basePos);
 			}
 
@@ -53,7 +53,7 @@ namespace CrystalWorld {
 			});
 
 			var mi = new MeshInfo ();
-			mi.positionTolerance = 0.1f * cellService.spacing;
+			mi.positionTolerance = 0.1f * blockService.Spacing;
 			mi.vertices = positions.ToArray();
 			mi.indices = tris0.Concat(tris1).Concat(tris2).ToArray();
 

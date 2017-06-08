@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace CrystalWorld {
 
-	public class CrystalTerrainService {
+	public class CrystalTerrainService : ITerrainService {
 
 		public float horiScale;
 		public float vertScale;
@@ -14,7 +14,7 @@ namespace CrystalWorld {
 			vertScale = vert;
 		}
 
-		public int GetvalueAtPosition(Vector3 pos)
+		public int GetValueAtPosition(Vector3 pos)
 		{
 			var height = vertScale * (Mathf.Sin (pos.x / horiScale) + Mathf.Sin (pos.z / horiScale));
 			return Mathf.RoundToInt(Mathf.Max(height - pos.y, 0));

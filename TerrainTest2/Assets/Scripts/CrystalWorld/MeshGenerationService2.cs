@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace CrystalWorld {
 
-	public class MeshGenerationService2 : ICrystalMeshInfoGenerator {
+	public class MeshGenerationService2 : ICellMeshInfoGenerator {
 
 		private struct PositionTerrainInfo {
 			public Vector3 position;
@@ -41,24 +41,24 @@ namespace CrystalWorld {
 			new Edge(1,2), new Edge(2,3), new Edge(3,4), new Edge(4,1)  // rim
 		};
 
-		public MeshInfo GenerateMeshInfo (CrystalInfo crystal, CrystalCellService cellService, CrystalTerrainService terrainService) {
+		public MeshInfo GenerateMeshInfo (CellInfo cell, IBlockService blockService, ITerrainService terrainService) {
 
 			List<Index3> indices3 = new List<Index3> ();
 			List<PositionTerrainInfo> allData = new List<PositionTerrainInfo> ();
 
-			indices3.Add(crystal.step);
-			indices3.Add(cellService.GetNeighborStep (indices3[0], Neighbors.TOP_NORTH_EAST));
-			indices3.Add(cellService.GetNeighborStep (indices3[0], Neighbors.NORTH_EAST));
-			indices3.Add(cellService.GetNeighborStep (indices3[0], Neighbors.NORTH_WEST));
-			indices3.Add(cellService.GetNeighborStep (indices3[0], Neighbors.TOP_NORTH_WEST));
-			indices3.Add(cellService.GetNeighborStep (indices3[1], Neighbors.NORTH_WEST));
-			indices3.Add(cellService.GetNeighborStep (indices3[0], Neighbors.EAST));
-			indices3.Add(cellService.GetNeighborStep (indices3[0], Neighbors.TOP_SOUTH));
+			indices3.Add(cell.step);
+			indices3.Add(blockService.GetNeighborStep (indices3[0], Neighbors.TOP_NORTH_EAST));
+			indices3.Add(blockService.GetNeighborStep (indices3[0], Neighbors.NORTH_EAST));
+			indices3.Add(blockService.GetNeighborStep (indices3[0], Neighbors.NORTH_WEST));
+			indices3.Add(blockService.GetNeighborStep (indices3[0], Neighbors.TOP_NORTH_WEST));
+			indices3.Add(blockService.GetNeighborStep (indices3[1], Neighbors.NORTH_WEST));
+			indices3.Add(blockService.GetNeighborStep (indices3[0], Neighbors.EAST));
+			indices3.Add(blockService.GetNeighborStep (indices3[0], Neighbors.TOP_SOUTH));
 
-			var basePos = cellService.GetPositionAtStep (indices3 [0]);
+			var basePos = blockService.GetPosition (indices3 [0]);
 			foreach (var i in indices3) {
-				var pos = cellService.GetPositionAtStep (i);
-				var val = terrainService.GetvalueAtPosition (pos);
+				var pos = blockService.GetPosition (i);
+				var val = terrainService.GetValueAtPosition (pos);
 				allData.Add (new PositionTerrainInfo(pos - basePos, val));
 			}
 

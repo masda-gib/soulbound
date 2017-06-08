@@ -15,12 +15,12 @@ public class ServiceTestRenderer : MonoBehaviour
 
 	public Index3 debugIndex;
 
-	private CrystalCellService _cellService;
+	private CrystalBlockService _cellService;
 	private CrystalTerrainService _terrainService;
 
 	private List<GameObject> objs;
 
-	public CrystalCellService CellService {
+	public CrystalBlockService CellService {
 		get { return _cellService; }
 	}
 
@@ -29,7 +29,7 @@ public class ServiceTestRenderer : MonoBehaviour
 	}
 
 	void Awake() {
-		_cellService = new CrystalCellService (widthSegs, heightSegs, lengthSegs, spacing);
+		_cellService = new CrystalBlockService (widthSegs, heightSegs, lengthSegs, spacing);
 		_terrainService = new CrystalTerrainService (horiScale, vertScale);
 	}
 
@@ -49,7 +49,7 @@ public class ServiceTestRenderer : MonoBehaviour
 
 //		// Terrain
 		foreach (var c in _cellService) {
-			var tVal = _terrainService.GetvalueAtPosition (c.pos);
+			var tVal = _terrainService.GetValueAtPosition (c.pos);
 			if (tVal > 0) {
 				var obj = GameObject.CreatePrimitive (PrimitiveType.Sphere);
 				obj.transform.parent = this.transform;
@@ -61,11 +61,11 @@ public class ServiceTestRenderer : MonoBehaviour
 
 	public void Update()
 	{
-		objs [0].transform.position = _cellService.GetPositionAtStep (debugIndex);
+		objs [0].transform.position = _cellService.GetPosition (debugIndex);
 		int i = 1;
 		foreach (var s in _cellService.GetAllNeighborSteps (debugIndex)) 
 		{
-			objs[i].transform.position = _cellService.GetPositionAtStep(s.Value);
+			objs[i].transform.position = _cellService.GetPosition(s.Value);
 			i++;
 		}
 	}

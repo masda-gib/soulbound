@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace CrystalWorld {
 
-	public class CrystalCellService : IEnumerable<CrystalInfo> {
+	public class CrystalBlockService : IBlockService {
 
 		public const float yFactor = 0.8f;
 		public const float zFactor = 0.8660254f;
@@ -12,14 +12,30 @@ namespace CrystalWorld {
 		public int xSegments, ySegments, zSegments;
 		public float spacing;
 
-		public CrystalCellService(int xSegs, int ySegs, int zSegs, float spacing) {
+		public CrystalBlockService(int xSegs, int ySegs, int zSegs, float spacing) {
 			this.xSegments = xSegs;
 			this.ySegments = ySegs;
 			this.zSegments = zSegs;
 			this.spacing = spacing;
 		}
 
-		public int Count {
+		public int EastwardSegments {
+			get { return xSegments; }
+		}
+
+		public int NorthwardDoublets {
+			get { return zSegments; }
+		}
+
+		public int UpwardTriplets {
+			get { return ySegments; }
+		}
+
+		public float Spacing {
+			get { return spacing; }
+		}
+
+		public int CellCount {
 			get { return xSegments * ySegments * zSegments * 6; }
 		}
 
@@ -31,12 +47,12 @@ namespace CrystalWorld {
 			get { return new Vector3 (xSegments * spacing, 3 * ySegments * spacing * yFactor, 2 * zSegments * spacing * zFactor); }
 		}
 
-		public CrystalInfo GetCrystalInfoAtStep(Index3 step) {
-			var pos = GetPositionAtStep (step);
-			return new CrystalInfo (step, pos);
+		public CellInfo GetCellInfo(Index3 step) {
+			var pos = GetPosition (step);
+			return new CellInfo (step, pos);
 		}
 
-		public Vector3 GetPositionAtStep(Index3 step)
+		public Vector3 GetPosition(Index3 step)
 		{
 			var dims = this.Dimensions;
 			float xCoord = (-0.5f * dims.x) + ((step.east + 0.5f) * spacing);
@@ -197,7 +213,7 @@ namespace CrystalWorld {
 
 		#region IEnumerable implementation
 
-		public IEnumerator<CrystalInfo> GetEnumerator ()
+		public IEnumerator<CellInfo> GetEnumerator ()
 		{
 			var maxInd = MaxStep;
 			for (int y = 0; y < maxInd.up; y++) 
@@ -207,7 +223,7 @@ namespace CrystalWorld {
 					for (int x = 0; x < maxInd.east; x++) 
 					{
 						var index3 = new Index3(x, y, z);
-						yield return GetCrystalInfoAtStep (index3);
+						yield return GetCellInfo (index3);
 					}
 				}
 			}
