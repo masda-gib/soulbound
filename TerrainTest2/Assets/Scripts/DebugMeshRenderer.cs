@@ -10,20 +10,26 @@ public class DebugMeshRenderer : MonoBehaviour {
 	public bool generateTerrain;
 	public bool debugTerrain;
 	public Material mat;
+	public float distortion;
 	public int debugEast;
 	public int debugNorth;
 	public int debugUp;
 
-	private MeshGenerationService mgs1;
-	private MeshGenerationService2 mgs2;
+	private ICellMeshInfoGenerator mgs1;
+	private ICellMeshInfoGenerator mgs2;
 	private Index3 _lastIndex;
 	private GameObject renderGo;
 	private MeshFilter renderMf;
 
 	// Use this for initialization
 	void Start () {
-		mgs1 = new MeshGenerationService ();
-		mgs2 = new MeshGenerationService2 ();
+		mgs1 = new TerrainSegmentMeshGenerationService ();
+		var tms = new TerrainMeshGenerationService ();
+		var ds = new CrystalDistortionService ();
+		ds.maxDistance = sr.CellService.Spacing * distortion;
+		tms.distortionService = ds;
+		mgs2 = tms;
+
 		renderGo = new GameObject ("DebugRenderer");
 		renderMf = renderGo.AddComponent<MeshFilter> ();
 		var renderMr = renderGo.AddComponent<MeshRenderer> ();

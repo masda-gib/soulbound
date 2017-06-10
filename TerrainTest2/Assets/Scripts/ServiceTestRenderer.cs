@@ -9,6 +9,7 @@ public class ServiceTestRenderer : MonoBehaviour
 	public int widthSegs = 4;
 	public int heightSegs = 1;
 	public int spacing = 1;
+	public float distortion = 0.5f;
 
 	public float horiScale = 8;
 	public float vertScale = 8;

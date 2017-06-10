@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace CrystalWorld {
 
-	public class MeshGenerationService2 : ICellMeshInfoGenerator {
+	public class TerrainMeshGenerationService : ICellMeshInfoGenerator {
 
 		private struct PositionTerrainInfo {
 			public Vector3 position;
@@ -41,6 +41,8 @@ namespace CrystalWorld {
 			new Edge(1,2), new Edge(2,3), new Edge(3,4), new Edge(4,1)  // rim
 		};
 
+		public IDistortionService distortionService;
+
 		public MeshInfo GenerateMeshInfo (CellInfo cell, IBlockService blockService, ITerrainService terrainService) {
 
 			List<Index3> indices3 = new List<Index3> ();
@@ -58,6 +60,9 @@ namespace CrystalWorld {
 			var basePos = blockService.GetPosition (indices3 [0]);
 			foreach (var i in indices3) {
 				var pos = blockService.GetPosition (i);
+				if (distortionService != null) {
+					pos = pos + distortionService.GetDistortionAtPosition (pos);
+				}
 				var val = terrainService.GetValueAtPosition (pos);
 				allData.Add (new PositionTerrainInfo(pos - basePos, val));
 			}

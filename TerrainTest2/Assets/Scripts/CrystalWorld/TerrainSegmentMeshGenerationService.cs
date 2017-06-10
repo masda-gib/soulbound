@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace CrystalWorld {
 
-	public class MeshGenerationService : ICellMeshInfoGenerator {
+	public class TerrainSegmentMeshGenerationService : ICellMeshInfoGenerator {
 
 		public MeshInfo GenerateMeshInfo (CellInfo cell, IBlockService blockService, ITerrainService terrainService) {
 

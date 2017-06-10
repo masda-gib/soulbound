@@ -24,7 +24,6 @@ namespace CrystalWorld {
 		Index3 GetNeighborStep (Index3 step, Neighbors neighbor);
 
 		IDictionary<Neighbors, Index3> GetAllNeighborSteps (Index3 step);
-
 	}
 
 }
