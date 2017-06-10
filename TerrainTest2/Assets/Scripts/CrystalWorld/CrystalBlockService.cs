@@ -163,7 +163,7 @@ namespace CrystalWorld {
 				break;
 
 				// Unten-Süd-Ost
-			case Neighbors.BOTTON_SOUTH_EAST:
+			case Neighbors.BOTTOM_SOUTH_EAST:
 				nStep.east = step.east + zDir + (xDir * zDirDown);
 				nStep.up = step.up - 1;
 				nStep.north = step.north - zDirDown;

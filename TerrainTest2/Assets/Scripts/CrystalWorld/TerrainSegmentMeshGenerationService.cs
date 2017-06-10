@@ -7,6 +7,8 @@ namespace CrystalWorld {
 
 	public class TerrainSegmentMeshGenerationService : ICellMeshInfoGenerator {
 
+		public IDistortionService distortionService;
+
 		public MeshInfo GenerateMeshInfo (CellInfo cell, IBlockService blockService, ITerrainService terrainService) {
 
 			List<Index3> indices3 = new List<Index3> ();
@@ -24,6 +26,9 @@ namespace CrystalWorld {
 			var basePos = blockService.GetPosition (indices3 [0]);
 			foreach (var i in indices3) {
 				var pos = blockService.GetPosition (i);
+				if (distortionService != null) {
+					pos = pos + distortionService.GetDistortionAtPosition (pos);
+				}
 				positions.Add (pos - basePos);
 			}
 

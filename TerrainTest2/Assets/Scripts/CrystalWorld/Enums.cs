@@ -7,7 +7,7 @@ namespace CrystalWorld {
 	{
 		BOTTOM_NORTH = 0, 
 		BOTTOM_SOUTH_WEST, 
-		BOTTON_SOUTH_EAST,
+		BOTTOM_SOUTH_EAST,
 		EAST, 
 		NORTH_EAST, 
 		NORTH_WEST, 

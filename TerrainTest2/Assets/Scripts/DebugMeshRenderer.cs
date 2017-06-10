@@ -14,21 +14,26 @@ public class DebugMeshRenderer : MonoBehaviour {
 	public int debugEast;
 	public int debugNorth;
 	public int debugUp;
+	public float debugBias = 0.5f;
 
 	private ICellMeshInfoGenerator mgs1;
 	private ICellMeshInfoGenerator mgs2;
+	private CellMeshGenerationService mgs3;
 	private Index3 _lastIndex;
 	private GameObject renderGo;
 	private MeshFilter renderMf;
 
 	// Use this for initialization
 	void Start () {
-		mgs1 = new TerrainSegmentMeshGenerationService ();
-		var tms = new TerrainMeshGenerationService ();
 		var ds = new CrystalDistortionService ();
 		ds.maxDistance = sr.CellService.Spacing * distortion;
+		var dms = new TerrainSegmentMeshGenerationService ();
+		var tms = new TerrainMeshGenerationService ();
+		dms.distortionService = ds;
 		tms.distortionService = ds;
+		mgs1 = dms;
 		mgs2 = tms;
+		mgs3 = new CellMeshGenerationService ();
 
 		renderGo = new GameObject ("DebugRenderer");
 		renderMf = renderGo.AddComponent<MeshFilter> ();
@@ -83,7 +88,8 @@ public class DebugMeshRenderer : MonoBehaviour {
 
 			var c = sr.CellService.GetCellInfo (_lastIndex);
 
-			var mi = mgs1.GenerateMeshInfo (c, sr.CellService, sr.TerrainService);
+			mgs3.bias = debugBias;
+			var mi = mgs3.GenerateMeshInfo (c, sr.CellService, sr.TerrainService);
 			renderMf.mesh = ConvertToMesh (mi);
 			renderGo.transform.position = sr.CellService.GetPosition (_lastIndex);
 			renderGo.name = "Debug: " + c.step.ToString();
