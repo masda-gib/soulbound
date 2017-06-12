@@ -55,19 +55,29 @@ namespace CrystalWorld {
 			return new CellInfo (step, pos);
 		}
 
+		private Index3 CalcNegativeCorrection(Index3 step) {
+			var east = (step.east < 1) ? -(step.east) : 0;
+			var north = (step.north < 1 ) ? Mathf.CeilToInt((-(step.north) / 2.0f)) * 2 : 0;
+			var up = (step.up < 1 ) ? Mathf.CeilToInt((-(step.up) / 3.0f)) * 3 : 0;
+			return new Index3 (east, up, north);
+		}
+
 		public Vector3 GetPosition(Index3 step)
 		{
 			var dims = this.Dimensions;
+			var corr = CalcNegativeCorrection (step);
+
+
 			float xCoord = (-0.5f * dims.x) + ((step.east + 0.5f) * spacing);
 			float yCoord = (-0.5f * dims.y) + ((step.up + 0.5f) * spacing * yFactor);
 			float zCoord = (-0.5f * dims.z) + ((step.north + 0.5f) * spacing * zFactor);
 
-			if (step.north % 2 == 0) 
+			if ((step.north + corr.north) % 2 == 0) 
 			{
 				xCoord -= spacing / 2.0f;
 			}
 
-			switch (step.up % 3)
+			switch ((step.up + corr.up) % 3)
 			{
 			case 0:
 				zCoord -= spacing * zFactor / 3f; // eigentlich /3, aber dann muss x-Versatz umgekehrt werden, wenn yStep%3 = 1
@@ -177,10 +187,12 @@ namespace CrystalWorld {
 
 		private void CalcCorrectionValues(Index3 step, out int xDir, out int zDirDown, out int zDir, out int zDirUp)
 		{
-			xDir = step.north % 2;
-			zDirDown = (step.up % 3 == 0) ? 1 : 0;
-			zDir = (step.up % 3 == 1) ? 1 : 0;
-			zDirUp = (step.up % 3 == 2) ? 1 : 0;
+			var corr = CalcNegativeCorrection (step);
+			xDir = (step.north + corr.north) % 2;
+			var corrUp = step.up + corr.up;
+			zDirDown = (corrUp % 3 == 0) ? 1 : 0;
+			zDir = (corrUp % 3 == 1) ? 1 : 0;
+			zDirUp = (corrUp % 3 == 2) ? 1 : 0;
 		}
 
 		public Index3 GetNeighborStep(Index3 step, Neighbors neighbor)
