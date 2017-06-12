@@ -17,7 +17,7 @@ public class DebugMeshRenderer : MonoBehaviour {
 	public float debugBias = 0.5f;
 
 	private ICellMeshInfoGenerator mgs1;
-	private ICellMeshInfoGenerator mgs2;
+	private BlockTerrainGenerationService mgs2;
 	private CellMeshGenerationService mgs3;
 	private Index3 _lastIndex;
 	private GameObject renderGo;
@@ -28,9 +28,11 @@ public class DebugMeshRenderer : MonoBehaviour {
 		var ds = new CrystalDistortionService ();
 		ds.maxDistance = sr.CellService.Spacing * distortion;
 		var dms = new TerrainSegmentMeshGenerationService ();
-		var tms = new TerrainMeshGenerationService ();
+		var tms = new BlockTerrainGenerationService ();
 		dms.distortionService = ds;
-		tms.distortionService = ds;
+		tms.BlockService = sr.CellService;
+		tms.TerrainService = sr.TerrainService;
+		tms.DistortionService = ds;
 		mgs1 = dms;
 		mgs2 = tms;
 		mgs3 = new CellMeshGenerationService ();
@@ -62,17 +64,8 @@ public class DebugMeshRenderer : MonoBehaviour {
 			var terrainMf = terrainGo.AddComponent<MeshFilter> ();
 			terrainGo.transform.parent = this.transform;
 			terrainGo.transform.position = this.transform.position;
-			var mi = new MeshInfo();
-			mi.Init (0, 0, 0.1f);
 
-			foreach (var c in sr.CellService) {
-
-				var cmi = mgs2.GenerateMeshInfo (c, sr.CellService, sr.TerrainService);
-				if (cmi.IsValid) {
-					cmi.vertices = cmi.vertices.Select (x => x + c.pos).ToArray ();
-					mi.Append (cmi);
-				}
-			}
+			var mi = mgs2.GenerateMeshInfo ();
 
 			terrainMf.mesh = ConvertToMesh (mi);
 			var terrainMr = terrainGo.AddComponent<MeshRenderer> ();

@@ -19,6 +19,9 @@ namespace CrystalWorld {
 			this.spacing = spacing;
 		}
 
+		public CrystalBlockService(float spacing) : this (26, 10, 15, spacing) {
+		}
+
 		public int EastwardSegments {
 			get { return xSegments; }
 		}
