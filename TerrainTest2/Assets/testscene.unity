@@ -249,7 +249,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sr: {fileID: 227847601}
   generateTerrain: 1
-  hdTerrain: 1
+  smooth: 0.5
+  relax: 0.5
+  hdTerrain: 0
   debugTerrain: 0
   mat: {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
   distortion: 0.3

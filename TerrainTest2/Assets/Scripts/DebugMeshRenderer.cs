@@ -8,6 +8,8 @@ public class DebugMeshRenderer : MonoBehaviour {
 
 	public ServiceTestRenderer sr;
 	public bool generateTerrain;
+	public float smooth;
+	public float relax;
 	public bool hdTerrain;
 	public bool debugTerrain;
 	public Material mat;
@@ -67,8 +69,10 @@ public class DebugMeshRenderer : MonoBehaviour {
 			terrainGo.transform.position = this.transform.position;
 
 			var mi = mgs2.GenerateMeshInfo ();
+			mi.Smooth (smooth, relax);
+			mi.GenerateNormals ();
 			if (hdTerrain) {
-				mi = mgs2.GenerateHighDetailMeshInfo ();
+				mi = mgs2.GenerateHighDetailMeshInfo (mi);
 			}
 
 			terrainMf.mesh = ConvertToMesh (mi, false);

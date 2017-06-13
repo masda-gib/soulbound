@@ -11,9 +11,6 @@ namespace CrystalWorld {
 		private ITerrainService terrainService;
 		private TerrainMeshGenerationService cellTerrainGenerator;
 
-		private MeshInfo lowMi;
-		private MeshInfo highMi;
-
 		public IBlockService BlockService {
 			get { return blockService; }
 			set { blockService = value; }
@@ -35,7 +32,7 @@ namespace CrystalWorld {
 
 		public MeshInfo GenerateMeshInfo () {
 			
-			lowMi = new MeshInfo();
+			var lowMi = new MeshInfo();
 			lowMi.Init (0, 0, 0.1f);
 
 			foreach (var c in blockService) {
@@ -52,7 +49,7 @@ namespace CrystalWorld {
 			return lowMi;
 		}
 
-		public MeshInfo GenerateHighDetailMeshInfo() {
+		public MeshInfo GenerateHighDetailMeshInfo(MeshInfo lowMi) {
 
 			var newVerts = new List<Vector3> ();
 			var newInds = new List<int> ();

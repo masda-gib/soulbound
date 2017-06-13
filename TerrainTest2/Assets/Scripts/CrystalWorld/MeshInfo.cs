@@ -95,6 +95,72 @@ namespace CrystalWorld {
 			}
 
 		}
+
+		public void Smooth(float smooth, float relax = 0) {
+
+			var smoothVerts = GetSmothedVertices (smooth, relax);
+			if (smoothVerts != null) {
+				vertices = smoothVerts;
+			}
+		}
+
+		public Vector3[] GetSmothedVertices(float smooth, float relax = 0) {
+
+			if (!(this.IsValid)) {
+				return null;
+			}
+
+			if (smooth != 0 && ((normals == null) || (vertices.Length != normals.Length))) {
+				return null;
+			}
+
+			var smoothVerts = new Vector3[vertices.Length];
+
+			var vi = 0;
+			foreach (var v in vertices) {
+				var adjIndices = new List<int> ();
+
+				var si = 0;
+				var fi = 0;
+				do {
+					fi = System.Array.IndexOf(indices, vi, si);
+					if ( fi >= 0) {
+						switch (fi % 3) {
+						case 0:
+							if (!(adjIndices.Contains(indices[fi + 1]))) {adjIndices.Add(indices[fi + 1]);}
+							if (!(adjIndices.Contains(indices[fi + 2]))) {adjIndices.Add(indices[fi + 2]);}
+							break;
+						case 1:
+							if (!(adjIndices.Contains(indices[fi - 1]))) {adjIndices.Add(indices[fi - 1]);}
+							if (!(adjIndices.Contains(indices[fi + 1]))) {adjIndices.Add(indices[fi + 1]);}
+							break;
+						case 2:
+							if (!(adjIndices.Contains(indices[fi - 2]))) {adjIndices.Add(indices[fi - 2]);}
+							if (!(adjIndices.Contains(indices[fi - 1]))) {adjIndices.Add(indices[fi - 1]);}
+							break;
+						}
+						si = fi + 1;
+					}
+				} while (fi >= 0);
+
+				var adjCenter = Vector3.zero;
+				foreach (var ai in adjIndices) {
+					adjCenter += vertices [ai];
+				}
+				adjCenter = adjCenter * (1.0f / adjIndices.Count);
+				var diff = adjCenter - v;
+				var normDiff = Vector3.zero;
+				if (smooth != 0) {
+					normDiff = normals [vi] * Vector3.Dot (normals [vi], diff);
+				}
+				smoothVerts[vi] = v + (normDiff * smooth) + (diff * relax);
+
+				vi++;
+			}
+
+			return smoothVerts;
+		}
+
 	}
 
 }
