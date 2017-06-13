@@ -80,8 +80,6 @@ namespace CrystalWorld {
 			currData = new PositionTerrainInfo[] { allData [0], allData [1], allData [4], allData [7] };
 			mi.Append(BuildSegmentMesh (currData));
 
-			// TODO: Some PointMeshes for both, 4 and 6 segments, don't generate
-
 			return mi;
 		}
 

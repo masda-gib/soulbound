@@ -59,6 +59,42 @@ namespace CrystalWorld {
 		
 			this.indices = this.indices.Concat (other.indices.Select (x => pointMap[x])).ToArray();
 		}
+
+		public void GenerateNormals() {
+		
+			if (!(this.IsValid)) {
+				return;
+			}
+
+			if (normals == null || normals.Length != vertices.Length) {
+				normals = new Vector3[vertices.Length];
+			}
+
+			var faceNormals = new Vector3[indices.Length / 3];
+			for (int i = 0; i < indices.Length / 3; i++) {
+				var i0 = indices[i * 3];
+				var i1 = indices[(i * 3) + 1];
+				var i2 = indices[(i * 3) + 2];
+				faceNormals [i] = Vector3.Cross (vertices [i1] - vertices [i0], vertices [i2] - vertices [i0]);
+			}
+
+			var vi = 0;
+			foreach (var v in vertices) {
+				var n = new Vector3 ();
+				var si = 0;
+				var fi = 0;
+				do {
+					fi = System.Array.IndexOf(indices, vi, si);
+					if ( fi >= 0) {
+						n += faceNormals[fi / 3];
+						si = fi + 1;
+					}
+				} while (fi >= 0);
+				normals [vi] = n.normalized;
+				vi++;
+			}
+
+		}
 	}
 
 }

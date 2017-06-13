@@ -47,6 +47,8 @@ namespace CrystalWorld {
 				}
 			}
 
+			lowMi.GenerateNormals ();
+
 			return lowMi;
 		}
 
@@ -75,6 +77,8 @@ namespace CrystalWorld {
 
 			highMi.vertices = newVerts.ToArray ();
 			highMi.indices = newInds.ToArray ();
+			highMi.GenerateNormals ();
+
 			return highMi;
 		}
 

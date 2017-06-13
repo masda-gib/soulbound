@@ -53,7 +53,7 @@ public class DebugMeshRenderer : MonoBehaviour {
 					terrainGo.transform.position = c.pos;
 
 					var mi = mgs1.GenerateMeshInfo (c, sr.CellService, sr.TerrainService);
-					terrainMf.mesh = ConvertToMesh(mi);
+					terrainMf.mesh = ConvertToMesh(mi, true);
 					var terrainMr = terrainGo.AddComponent<MeshRenderer> ();
 					terrainMr.material = mat;
 				}
@@ -71,7 +71,7 @@ public class DebugMeshRenderer : MonoBehaviour {
 				mi = mgs2.GenerateHighDetailMeshInfo ();
 			}
 
-			terrainMf.mesh = ConvertToMesh (mi);
+			terrainMf.mesh = ConvertToMesh (mi, false);
 			var terrainMr = terrainGo.AddComponent<MeshRenderer> ();
 			terrainMr.material = mat;
 		}
@@ -87,21 +87,25 @@ public class DebugMeshRenderer : MonoBehaviour {
 
 			mgs3.bias = debugBias;
 			var mi = mgs3.GenerateMeshInfo (c, sr.CellService, sr.TerrainService);
-			renderMf.mesh = ConvertToMesh (mi);
+			renderMf.mesh = ConvertToMesh (mi, true);
 			renderGo.transform.position = sr.CellService.GetPosition (_lastIndex);
 			renderGo.name = "Debug: " + c.step.ToString();
 		}
 		
 	}
 
-	protected Mesh ConvertToMesh(MeshInfo mi) {
+	protected Mesh ConvertToMesh(MeshInfo mi, bool reCalculateNormals) {
 		Mesh m = new Mesh ();
 
 		if (mi.IsValid) {
 			m.SetVertices (mi.vertices.ToList ());
 			m.SetTriangles (mi.indices.ToList (), 0);
 			m.RecalculateBounds ();
-			m.RecalculateNormals ();
+			if (reCalculateNormals) {
+				m.RecalculateNormals ();
+			} else {
+				m.SetNormals(mi.normals.ToList());
+			}
 		}
 
 		return m;
