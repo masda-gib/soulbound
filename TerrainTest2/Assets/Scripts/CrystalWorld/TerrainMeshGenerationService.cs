@@ -43,7 +43,11 @@ namespace CrystalWorld {
 
 		public IDistortionService distortionService;
 
+		private float positionTolerance;
+
 		public MeshInfo GenerateMeshInfo (CellInfo cell, IBlockService blockService, ITerrainService terrainService) {
+
+			positionTolerance = blockService.Spacing * 0.1f;
 
 			List<Index3> indices3 = new List<Index3> ();
 			List<PositionTerrainInfo> allData = new List<PositionTerrainInfo> ();
@@ -71,14 +75,14 @@ namespace CrystalWorld {
 			var currData = new PositionTerrainInfo[] { allData [0], allData [1], allData [2], allData [3], allData [4], allData [5] };
 			var mi = BuildSegmentMesh (currData);
 			if (!(mi.IsValid)) {
-				mi.Init (0, 0, 0.1f);
+				mi.Init ();
 			}
 			// first 4-point segment
 			currData = new PositionTerrainInfo[] { allData [0], allData [1], allData [2], allData [6] };
-			mi.Append(BuildSegmentMesh (currData));
+			mi.Append(BuildSegmentMesh (currData), positionTolerance);
 			// second 4-point segment
 			currData = new PositionTerrainInfo[] { allData [0], allData [1], allData [4], allData [7] };
-			mi.Append(BuildSegmentMesh (currData));
+			mi.Append(BuildSegmentMesh (currData), positionTolerance);
 
 			return mi;
 		}
@@ -119,7 +123,7 @@ namespace CrystalWorld {
 				} else {
 					var p0 = BuildPoint (data, new int[] { minority [0] }, Edges6);
 					var p1 = BuildPoint (data, new int[] { minority [1] }, Edges6);
-					p0.Append (p1);
+					p0.Append (p1, positionTolerance);
 					return p0;
 				}
 			case 3:
@@ -245,7 +249,7 @@ namespace CrystalWorld {
 					norm = -norm;
 				}
 				SortPolyPoints (points, norm);
-				mi.Append(CreatePoly (points));
+				mi.Append(CreatePoly (points), positionTolerance);
 			}
 
 			return mi;
@@ -276,14 +280,14 @@ namespace CrystalWorld {
 		private MeshInfo CreatePoly (Vector3[] points) {
 
 			var mi = new MeshInfo ();
-			mi.Init (points.Length, points.Length - 2, 0.1f);
+			mi.Init ();
 			var i = 0;
 			foreach (var p in points) {
-				mi.vertices [i] = p;
+				mi.vertices.Add(p);
 				if (i > 1) {
-					mi.indices [((i - 2) * 3)] = 0;
-					mi.indices [((i - 2) * 3) + 1] = i - 1;
-					mi.indices [((i - 2) * 3) + 2] = i;
+					mi.indices.Add(0);
+					mi.indices.Add(i - 1);
+					mi.indices.Add(i);
 				}
 				i++;
 			}

@@ -7,30 +7,24 @@ namespace CrystalWorld {
 
 	public struct MeshInfo
 	{
-		public Vector3[] vertices;
-		public Vector3[] normals;
-		public Vector3[] uvs;
+		public List<Vector3> vertices;
+		public List<Vector3> normals;
 
-		public int[] indices;
-
-		public float positionTolerance;
+		public List<int> indices;
 
 		public bool IsValid {
 			get { return vertices != null && indices != null; }
 		}
 
-		public void Init(int points, int tris, float positionTolerance)
-		{
-			vertices = new Vector3[points];
-			normals = new Vector3[points];
-			uvs = new Vector3[points];
-			indices = new int[tris * 3];
-			this.positionTolerance = positionTolerance;
+		public void Init() {
+			vertices = new List<Vector3> ();
+			normals = new List<Vector3> ();
+			indices = new List<int> ();
 		}
 
-		public void Append(MeshInfo other)
+		public void Append(MeshInfo other, float positionTolerance)
 		{
-			if (!(this.IsValid && other.IsValid)) {
+			if (!(this.IsValid) || !(other.IsValid)) {
 				return;
 			}
 
@@ -41,57 +35,59 @@ namespace CrystalWorld {
 			foreach (var p in other.vertices) {
 
 				var vIndex = -1;
-				for (int i = 0; i < this.vertices.Length; i++) {
-					if (Vector3.Distance (this.vertices [i], p) <= positionTolerance) {
+				var i = 0;
+				foreach (var op in this.vertices) {
+					if (Vector3.Distance (op, p) <= positionTolerance) {
 						vIndex = i;
 					}
+					i++;
 				}
 
 				if (vIndex < 0) {
-					pointMap.Add (o, this.vertices.Length + newVerts.Count);
+					pointMap.Add (o, this.vertices.Count + newVerts.Count);
 					newVerts.Add (p);
 				} else {
 					pointMap.Add (o, vIndex);
 				}
 				o++;
 			}
-			this.vertices = this.vertices.Concat (newVerts).ToArray ();
+			this.vertices.AddRange (newVerts);
 		
-			this.indices = this.indices.Concat (other.indices.Select (x => pointMap[x])).ToArray();
+			this.indices.AddRange(other.indices.Select (x => pointMap[x]));
 		}
 
 		public void GenerateNormals() {
-		
+
 			if (!(this.IsValid)) {
 				return;
 			}
 
-			if (normals == null || normals.Length != vertices.Length) {
-				normals = new Vector3[vertices.Length];
+			if (normals == null) {
+				normals = new List<Vector3> ();
+			} else {
+				normals.Clear ();
 			}
 
-			var faceNormals = new Vector3[indices.Length / 3];
-			for (int i = 0; i < indices.Length / 3; i++) {
+			var faceNormals = new List<Vector3>();
+			for (int i = 0; i < indices.Count / 3; i++) {
 				var i0 = indices[i * 3];
 				var i1 = indices[(i * 3) + 1];
 				var i2 = indices[(i * 3) + 2];
-				faceNormals [i] = Vector3.Cross (vertices [i1] - vertices [i0], vertices [i2] - vertices [i0]);
+				faceNormals.Add(Vector3.Cross (vertices [i1] - vertices [i0], vertices [i2] - vertices [i0]));
 			}
 
-			var vi = 0;
-			foreach (var v in vertices) {
+			for (int vi = 0; vi < vertices.Count; vi++) {
 				var n = new Vector3 ();
 				var si = 0;
 				var fi = 0;
 				do {
-					fi = System.Array.IndexOf(indices, vi, si);
+					fi = indices.IndexOf(vi, si);
 					if ( fi >= 0) {
 						n += faceNormals[fi / 3];
 						si = fi + 1;
 					}
 				} while (fi >= 0);
-				normals [vi] = n.normalized;
-				vi++;
+				normals.Add(n.normalized);
 			}
 
 		}
@@ -104,17 +100,17 @@ namespace CrystalWorld {
 			}
 		}
 
-		public Vector3[] GetSmothedVertices(float smooth, float relax = 0) {
+		public List<Vector3> GetSmothedVertices(float smooth, float relax = 0) {
 
 			if (!(this.IsValid)) {
 				return null;
 			}
 
-			if (smooth != 0 && ((normals == null) || (vertices.Length != normals.Length))) {
+			if ((smooth != 0) && (normals == null || vertices.Count != normals.Count)) {
 				return null;
 			}
 
-			var smoothVerts = new Vector3[vertices.Length];
+			var smoothVerts = new List<Vector3>();
 
 			var vi = 0;
 			foreach (var v in vertices) {
@@ -123,7 +119,7 @@ namespace CrystalWorld {
 				var si = 0;
 				var fi = 0;
 				do {
-					fi = System.Array.IndexOf(indices, vi, si);
+					fi = indices.IndexOf(vi, si);
 					if ( fi >= 0) {
 						switch (fi % 3) {
 						case 0:
@@ -153,7 +149,7 @@ namespace CrystalWorld {
 				if (smooth != 0) {
 					normDiff = normals [vi] * Vector3.Dot (normals [vi], diff);
 				}
-				smoothVerts[vi] = v + (normDiff * smooth) + (diff * relax);
+				smoothVerts.Add(v + (normDiff * smooth) + (diff * relax));
 
 				vi++;
 			}

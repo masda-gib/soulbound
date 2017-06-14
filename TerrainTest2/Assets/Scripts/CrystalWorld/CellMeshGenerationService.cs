@@ -14,7 +14,6 @@ namespace CrystalWorld {
 			var nbs = blockService.GetAllNeighborSteps (cell.step);
 
 			var basePos = blockService.GetPosition (cell.step);
-			var nbVecs = nbs.Select (x => (blockService.GetPosition (x.Value) - basePos) * bias).ToArray();
 
 			var indList = new List<int> ();
 			// bottom
@@ -45,9 +44,8 @@ namespace CrystalWorld {
 			indList.AddRange(new int[] {GetIndex(nbs, Neighbors.TOP_SOUTH), GetIndex(nbs, Neighbors.TOP_NORTH_WEST), GetIndex(nbs, Neighbors.TOP_NORTH_EAST)});
 
 			var mi = new MeshInfo ();
-			mi.vertices = nbVecs;
-			mi.indices = indList.ToArray ();
-			mi.positionTolerance = 0.1f * blockService.Spacing;
+			mi.vertices = nbs.Select (x => (blockService.GetPosition (x.Value) - basePos) * bias).ToList();
+			mi.indices = indList;
 			return mi;
 		}
 

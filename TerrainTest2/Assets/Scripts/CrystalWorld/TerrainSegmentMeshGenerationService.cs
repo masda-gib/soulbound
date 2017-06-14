@@ -58,9 +58,8 @@ namespace CrystalWorld {
 			});
 
 			var mi = new MeshInfo ();
-			mi.positionTolerance = 0.1f * blockService.Spacing;
-			mi.vertices = positions.ToArray();
-			mi.indices = tris0.Concat(tris1).Concat(tris2).ToArray();
+			mi.vertices = positions;
+			mi.indices = tris0.Concat(tris1).Concat(tris2).ToList();
 
 			return mi;
 

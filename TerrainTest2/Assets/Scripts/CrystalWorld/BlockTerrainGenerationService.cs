@@ -33,14 +33,14 @@ namespace CrystalWorld {
 		public MeshInfo GenerateMeshInfo () {
 			
 			var lowMi = new MeshInfo();
-			lowMi.Init (0, 0, 0.1f);
+			lowMi.Init ();
 
 			foreach (var c in blockService) {
 
 				var cmi = cellTerrainGenerator.GenerateMeshInfo (c, blockService, terrainService);
 				if (cmi.IsValid) {
-					cmi.vertices = cmi.vertices.Select (x => x + c.pos).ToArray ();
-					lowMi.Append (cmi);
+					cmi.vertices = cmi.vertices.Select (x => x + c.pos).ToList();
+					lowMi.Append (cmi, blockService.Spacing * 0.1f);
 				}
 			}
 
@@ -54,17 +54,17 @@ namespace CrystalWorld {
 			var newVerts = new List<Vector3> ();
 			var newInds = new List<int> ();
 			var highMi = new MeshInfo ();
-			highMi.positionTolerance = lowMi.positionTolerance * 0.5f;
+			var positionTolerance = blockService.Spacing * 0.05f;
 
 			newVerts.AddRange (lowMi.vertices);
 
-			for (int i = 0; i < lowMi.indices.Length / 3; i++) {
+			for (int i = 0; i < lowMi.indices.Count / 3; i++) {
 				var oi0 = lowMi.indices[i * 3];
 				var oi1 = lowMi.indices[(i * 3) + 1];
 				var oi2 = lowMi.indices[(i * 3) + 2];
-				var ni01 = AppendVertex (newVerts, (lowMi.vertices [oi0] + lowMi.vertices [oi1]) / 2.0f, highMi.positionTolerance);
-				var ni12 = AppendVertex (newVerts, (lowMi.vertices [oi1] + lowMi.vertices [oi2]) / 2.0f, highMi.positionTolerance);
-				var ni20 = AppendVertex (newVerts, (lowMi.vertices [oi2] + lowMi.vertices [oi0]) / 2.0f, highMi.positionTolerance);
+				var ni01 = AppendVertex (newVerts, (lowMi.vertices [oi0] + lowMi.vertices [oi1]) / 2.0f, positionTolerance);
+				var ni12 = AppendVertex (newVerts, (lowMi.vertices [oi1] + lowMi.vertices [oi2]) / 2.0f, positionTolerance);
+				var ni20 = AppendVertex (newVerts, (lowMi.vertices [oi2] + lowMi.vertices [oi0]) / 2.0f, positionTolerance);
 
 				newInds.AddRange (new int[] {oi0, ni01, ni20});
 				newInds.AddRange (new int[] {oi1, ni12, ni01});
@@ -72,8 +72,8 @@ namespace CrystalWorld {
 				newInds.AddRange (new int[] {ni01, ni12, ni20});
 			}
 
-			highMi.vertices = newVerts.ToArray ();
-			highMi.indices = newInds.ToArray ();
+			highMi.vertices = newVerts;
+			highMi.indices = newInds;
 			highMi.GenerateNormals ();
 
 			return highMi;
