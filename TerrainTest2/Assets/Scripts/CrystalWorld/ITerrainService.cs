@@ -6,7 +6,9 @@ namespace CrystalWorld {
 
 	public interface ITerrainService {
 
-		int GetValueAtPosition (Vector3 pos);
+		int GetMaterialGroup (Vector3 pos);
+
+		int GetMaterialType (Vector3 pos, int group);
 
 	}
 

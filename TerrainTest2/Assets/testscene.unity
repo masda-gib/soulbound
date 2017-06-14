@@ -201,7 +201,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lengthSegs: 4
-  widthSegs: 8
+  widthSegs: 7
   heightSegs: 3
   spacing: 1
   distortion: 0.5

@@ -50,7 +50,7 @@ public class ServiceTestRenderer : MonoBehaviour
 
 //		// Terrain
 		foreach (var c in _cellService) {
-			var tVal = _terrainService.GetValueAtPosition (c.pos);
+			var tVal = _terrainService.GetMaterialGroup (c.pos);
 			if (tVal > 0) {
 				var obj = GameObject.CreatePrimitive (PrimitiveType.Sphere);
 				obj.transform.parent = this.transform;

@@ -48,7 +48,7 @@ public class DebugMeshRenderer : MonoBehaviour {
 
 		if (debugTerrain) {
 			foreach (var c in sr.CellService) {
-				if (sr.TerrainService.GetValueAtPosition (c.pos) > 0) {
+				if (sr.TerrainService.GetMaterialGroup (c.pos) > 0) {
 					var terrainGo = new GameObject ("DebugTerrain");
 					var terrainMf = terrainGo.AddComponent<MeshFilter> ();
 					terrainGo.transform.parent = this.transform;

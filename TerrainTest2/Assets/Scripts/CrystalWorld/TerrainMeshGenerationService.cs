@@ -63,7 +63,7 @@ namespace CrystalWorld {
 				if (distortionService != null) {
 					pos = pos + distortionService.GetDistortionAtPosition (pos);
 				}
-				var val = terrainService.GetValueAtPosition (pos);
+				var val = terrainService.GetMaterialGroup (pos);
 				allData.Add (new PositionTerrainInfo(pos - basePos, val));
 			}
 
@@ -86,14 +86,16 @@ namespace CrystalWorld {
 		private MeshInfo BuildSegmentMesh (PositionTerrainInfo[] data) {
 			var minority = FindMinority (data);
 
-			switch (data.Length) {
-			case 4:
-				return Build4SegmentMesh (data, minority);
-			case 6:
-				return Build6SegmentMesh (data, minority);
-			default:
-				return new MeshInfo ();
+			if (minority.Length > 0) {
+				switch (data.Length) {
+				case 4:
+					return Build4SegmentMesh (data, minority);
+				case 6:
+					return Build6SegmentMesh (data, minority);
+				}
 			}
+			return new MeshInfo ();
+
 		}
 
 		private MeshInfo Build4SegmentMesh(PositionTerrainInfo[] data, int[] minority) {

@@ -14,10 +14,17 @@ namespace CrystalWorld {
 			vertScale = vert;
 		}
 
-		public int GetValueAtPosition(Vector3 pos)
+		public int GetMaterialGroup(Vector3 pos)
 		{
 			var height = vertScale * (Mathf.Sin (pos.x / horiScale) + Mathf.Sin (pos.z / horiScale));
 			return Mathf.RoundToInt(Mathf.Max(height - pos.y, 0));
+		}
+
+		public int GetMaterialType(Vector3 pos, int group) {
+			if (group > 0) {
+				return (pos.y > 0) ? 1 : 0;
+			}
+			return 0;
 		}
 	}
 
