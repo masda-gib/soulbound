@@ -64,10 +64,10 @@ namespace CrystalWorld {
 			var basePos = blockService.GetPosition (indices3 [0]);
 			foreach (var i in indices3) {
 				var pos = blockService.GetPosition (i);
+				var val = terrainService.GetMaterialGroup (pos);
 				if (distortionService != null) {
 					pos = pos + distortionService.GetDistortionAtPosition (pos);
 				}
-				var val = terrainService.GetMaterialGroup (pos);
 				allData.Add (new PositionTerrainInfo(pos - basePos, val));
 			}
 
