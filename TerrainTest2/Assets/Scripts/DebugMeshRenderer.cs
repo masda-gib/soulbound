@@ -74,6 +74,7 @@ public class DebugMeshRenderer : MonoBehaviour {
 			if (hdTerrain) {
 				mi = mgs2.GenerateHighDetailMeshInfo (mi);
 			}
+			mi.ClearCache ();
 
 			terrainMf.mesh = ConvertToMesh (mi, false);
 			var terrainMr = terrainGo.AddComponent<MeshRenderer> ();

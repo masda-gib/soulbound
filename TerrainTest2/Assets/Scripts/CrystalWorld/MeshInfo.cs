@@ -9,8 +9,9 @@ namespace CrystalWorld {
 	{
 		public List<Vector3> vertices;
 		public List<Vector3> normals;
-
 		public List<int> indices;
+
+		private Dictionary<int, List<int>> vertexIndicesCache;
 
 		public bool IsValid {
 			get { return vertices != null && indices != null; }
@@ -54,6 +55,31 @@ namespace CrystalWorld {
 			this.vertices.AddRange (newVerts);
 		
 			this.indices.AddRange(other.indices.Select (x => pointMap[x]));
+
+			ClearCache ();
+		}
+
+		public void ClearCache() {
+			if (vertexIndicesCache != null) {
+				vertexIndicesCache.Clear ();
+			}
+		}
+
+		private void CreateCache(bool force = false) {
+			if (force || vertexIndicesCache == null || vertexIndicesCache.Count != vertices.Count) {
+				ClearCache ();
+				if (vertexIndicesCache == null) {
+					vertexIndicesCache = new Dictionary<int, List<int>> ();
+				}
+				var i = 0;
+				foreach (var vInd in indices) {
+					if (!(vertexIndicesCache.ContainsKey (vInd))) {
+						vertexIndicesCache.Add(vInd, new List<int>());
+					}
+					vertexIndicesCache [vInd].Add (i);
+					i++;
+				}
+			}
 		}
 
 		public void GenerateNormals() {
@@ -68,6 +94,8 @@ namespace CrystalWorld {
 				normals.Clear ();
 			}
 
+			CreateCache ();
+
 			var faceNormals = new List<Vector3>();
 			for (int i = 0; i < indices.Count / 3; i++) {
 				var i0 = indices[i * 3];
@@ -77,16 +105,10 @@ namespace CrystalWorld {
 			}
 
 			for (int vi = 0; vi < vertices.Count; vi++) {
-				var n = new Vector3 ();
-				var si = 0;
-				var fi = 0;
-				do {
-					fi = indices.IndexOf(vi, si);
-					if ( fi >= 0) {
-						n += faceNormals[fi / 3];
-						si = fi + 1;
-					}
-				} while (fi >= 0);
+				var n = Vector3.zero;
+				foreach (var ind in vertexIndicesCache[vi]) {
+					n += faceNormals[ind / 3];
+				}
 				normals.Add(n.normalized);
 			}
 
@@ -110,34 +132,30 @@ namespace CrystalWorld {
 				return null;
 			}
 
+			CreateCache ();
+
 			var smoothVerts = new List<Vector3>();
 
 			var vi = 0;
 			foreach (var v in vertices) {
 				var adjIndices = new List<int> ();
 
-				var si = 0;
-				var fi = 0;
-				do {
-					fi = indices.IndexOf(vi, si);
-					if ( fi >= 0) {
-						switch (fi % 3) {
-						case 0:
-							if (!(adjIndices.Contains(indices[fi + 1]))) {adjIndices.Add(indices[fi + 1]);}
-							if (!(adjIndices.Contains(indices[fi + 2]))) {adjIndices.Add(indices[fi + 2]);}
-							break;
-						case 1:
-							if (!(adjIndices.Contains(indices[fi - 1]))) {adjIndices.Add(indices[fi - 1]);}
-							if (!(adjIndices.Contains(indices[fi + 1]))) {adjIndices.Add(indices[fi + 1]);}
-							break;
-						case 2:
-							if (!(adjIndices.Contains(indices[fi - 2]))) {adjIndices.Add(indices[fi - 2]);}
-							if (!(adjIndices.Contains(indices[fi - 1]))) {adjIndices.Add(indices[fi - 1]);}
-							break;
-						}
-						si = fi + 1;
+				foreach (var ind in vertexIndicesCache[vi]) {
+					switch (ind % 3) {
+					case 0:
+						if (!(adjIndices.Contains(indices[ind + 1]))) {adjIndices.Add(indices[ind + 1]);}
+						if (!(adjIndices.Contains(indices[ind + 2]))) {adjIndices.Add(indices[ind + 2]);}
+						break;
+					case 1:
+						if (!(adjIndices.Contains(indices[ind - 1]))) {adjIndices.Add(indices[ind - 1]);}
+						if (!(adjIndices.Contains(indices[ind + 1]))) {adjIndices.Add(indices[ind + 1]);}
+						break;
+					case 2:
+						if (!(adjIndices.Contains(indices[ind - 2]))) {adjIndices.Add(indices[ind - 2]);}
+						if (!(adjIndices.Contains(indices[ind - 1]))) {adjIndices.Add(indices[ind - 1]);}
+						break;
 					}
-				} while (fi >= 0);
+				}
 
 				var adjCenter = Vector3.zero;
 				foreach (var ai in adjIndices) {
