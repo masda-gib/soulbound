@@ -3,5 +3,6 @@
 *.userprefs
 Library
 Temp
+obj
 UnityEditor.dll
 UnityEngine.dll
