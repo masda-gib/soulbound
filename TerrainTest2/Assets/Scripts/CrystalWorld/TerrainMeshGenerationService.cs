@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace CrystalWorld {
 
-	public class TerrainMeshGenerationService : ICellMeshInfoGenerator {
+	public class TerrainMeshGenerationService : BaseMeshInfoService, ICellMeshInfoGenerator {
 
 		private struct PositionTerrainInfo {
 			public Vector3 position;
@@ -41,32 +41,35 @@ namespace CrystalWorld {
 			new Edge(1,2), new Edge(2,3), new Edge(3,4), new Edge(4,1)  // rim
 		};
 
-		public IDistortionService distortionService;
-
 		private float positionTolerance;
 
-		public MeshInfo GenerateMeshInfo (CellInfo cell, IBlockService blockService, ITerrainService terrainService) {
+		public TerrainMeshGenerationService ( IBlockService blockService, ITerrainService terrainService, IDistortionService distortionService)
+			: base (blockService, terrainService, distortionService) {
+		}
 
-			positionTolerance = blockService.Spacing * 0.1f;
+
+		public MeshInfo GenerateMeshInfo (CellInfo cell, Vector3 vertexOffset) {
+
+			positionTolerance = this.BlockService.Spacing * 0.1f;
 
 			List<Index3> indices3 = new List<Index3> ();
 			List<PositionTerrainInfo> allData = new List<PositionTerrainInfo> ();
 
 			indices3.Add(cell.step);
-			indices3.Add(blockService.GetNeighborStep (indices3[0], Neighbors.TOP_NORTH_EAST));
-			indices3.Add(blockService.GetNeighborStep (indices3[0], Neighbors.NORTH_EAST));
-			indices3.Add(blockService.GetNeighborStep (indices3[0], Neighbors.NORTH_WEST));
-			indices3.Add(blockService.GetNeighborStep (indices3[0], Neighbors.TOP_NORTH_WEST));
-			indices3.Add(blockService.GetNeighborStep (indices3[1], Neighbors.NORTH_WEST));
-			indices3.Add(blockService.GetNeighborStep (indices3[0], Neighbors.EAST));
-			indices3.Add(blockService.GetNeighborStep (indices3[0], Neighbors.TOP_SOUTH));
+			indices3.Add(this.BlockService.GetNeighborStep (indices3[0], Neighbors.TOP_NORTH_EAST));
+			indices3.Add(this.BlockService.GetNeighborStep (indices3[0], Neighbors.NORTH_EAST));
+			indices3.Add(this.BlockService.GetNeighborStep (indices3[0], Neighbors.NORTH_WEST));
+			indices3.Add(this.BlockService.GetNeighborStep (indices3[0], Neighbors.TOP_NORTH_WEST));
+			indices3.Add(this.BlockService.GetNeighborStep (indices3[1], Neighbors.NORTH_WEST));
+			indices3.Add(this.BlockService.GetNeighborStep (indices3[0], Neighbors.EAST));
+			indices3.Add(this.BlockService.GetNeighborStep (indices3[0], Neighbors.TOP_SOUTH));
 
-			var basePos = blockService.GetPosition (indices3 [0]);
+			var basePos = this.BlockService.GetPosition (indices3 [0]);
 			foreach (var i in indices3) {
-				var pos = blockService.GetPosition (i);
-				var val = terrainService.GetMaterialGroup (pos);
-				if (distortionService != null) {
-					pos = pos + distortionService.GetDistortionAtPosition (pos);
+				var pos = this.BlockService.GetPosition (i);
+				var val = this.TerrainService.GetMaterialGroup (pos);
+				if (this.DistortionService != null) {
+					pos = pos + this.DistortionService.GetDistortionAtPosition (pos);
 				}
 				allData.Add (new PositionTerrainInfo(pos - basePos, val));
 			}
@@ -83,6 +86,10 @@ namespace CrystalWorld {
 			// second 4-point segment
 			currData = new PositionTerrainInfo[] { allData [0], allData [1], allData [4], allData [7] };
 			mi.Append(BuildSegmentMesh (currData), positionTolerance);
+
+			if (mi.IsValid) {
+				mi.vertices = mi.vertices.Select (x => x + vertexOffset).ToList();
+			}
 
 			return mi;
 		}

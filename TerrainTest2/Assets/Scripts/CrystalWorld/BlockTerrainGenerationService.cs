@@ -5,29 +5,24 @@ using UnityEngine;
 
 namespace CrystalWorld {
 
-	public class BlockTerrainGenerationService {
+	public class BlockTerrainGenerationService : IMeshInfoService {
 
-		private IBlockService blockService;
-		private ITerrainService terrainService;
-		private TerrainMeshGenerationService cellTerrainGenerator;
+		private TerrainMeshGenerationService _cellTerrainGenerator;
 
 		public IBlockService BlockService {
-			get { return blockService; }
-			set { blockService = value; }
+			get { return _cellTerrainGenerator.BlockService; }
 		}
 
 		public ITerrainService TerrainService {
-			get { return terrainService; }
-			set { terrainService = value; }
+			get { return _cellTerrainGenerator.TerrainService; }
 		}
 
 		public IDistortionService DistortionService {
-			get { return cellTerrainGenerator.distortionService; }
-			set { cellTerrainGenerator.distortionService = value; }
+			get { return _cellTerrainGenerator.DistortionService; }
 		}
 
-		public BlockTerrainGenerationService() {
-			cellTerrainGenerator = new TerrainMeshGenerationService ();
+		public BlockTerrainGenerationService( IBlockService blockService, ITerrainService terrainService, IDistortionService distortionService) {
+			_cellTerrainGenerator = new TerrainMeshGenerationService (blockService, terrainService, distortionService);
 		}
 
 		public MeshInfo GenerateMeshInfo () {
@@ -35,13 +30,10 @@ namespace CrystalWorld {
 			var lowMi = new MeshInfo();
 			lowMi.Init ();
 
-			foreach (var c in blockService) {
+			foreach (var c in this.BlockService) {
 
-				var cmi = cellTerrainGenerator.GenerateMeshInfo (c, blockService, terrainService);
-				if (cmi.IsValid) {
-					cmi.vertices = cmi.vertices.Select (x => x + c.pos).ToList();
-					lowMi.Append (cmi, blockService.Spacing * 0.1f);
-				}
+				var cmi = _cellTerrainGenerator.GenerateMeshInfo (c, c.pos);
+				lowMi.Append (cmi, this.BlockService.Spacing * 0.1f);
 			}
 
 			lowMi.GenerateNormals ();
@@ -54,7 +46,7 @@ namespace CrystalWorld {
 			var newVerts = new List<Vector3> ();
 			var newInds = new List<int> ();
 			var highMi = new MeshInfo ();
-			var positionTolerance = blockService.Spacing * 0.05f;
+			var positionTolerance = this.BlockService.Spacing * 0.05f;
 
 			newVerts.AddRange (lowMi.vertices);
 

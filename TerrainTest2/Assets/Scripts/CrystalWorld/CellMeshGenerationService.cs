@@ -5,15 +5,19 @@ using UnityEngine;
 
 namespace CrystalWorld {
 
-	public class CellMeshGenerationService : ICellMeshInfoGenerator {
+	public class CellMeshGenerationService : BaseMeshInfoService, ICellMeshInfoGenerator {
 
 		public float bias = 0.5f;
 
-		public MeshInfo GenerateMeshInfo (CellInfo cell, IBlockService blockService, ITerrainService terrainService)
-		{
-			var nbs = blockService.GetAllNeighborSteps (cell.step);
+		public CellMeshGenerationService ( IBlockService blockService, ITerrainService terrainService, IDistortionService distortionService)
+			: base (blockService, terrainService, distortionService) {
+		}
 
-			var basePos = blockService.GetPosition (cell.step);
+		public MeshInfo GenerateMeshInfo (CellInfo cell, Vector3 vertexOffset)
+		{
+			var nbs = this.BlockService.GetAllNeighborSteps (cell.step);
+
+			var basePos = this.BlockService.GetPosition (cell.step);
 
 			var indList = new List<int> ();
 			// bottom
@@ -44,7 +48,7 @@ namespace CrystalWorld {
 			indList.AddRange(new int[] {GetIndex(nbs, Neighbors.TOP_SOUTH), GetIndex(nbs, Neighbors.TOP_NORTH_WEST), GetIndex(nbs, Neighbors.TOP_NORTH_EAST)});
 
 			var mi = new MeshInfo ();
-			mi.vertices = nbs.Select (x => (blockService.GetPosition (x.Value) - basePos) * bias).ToList();
+			mi.vertices = nbs.Select (x => ((this.BlockService.GetPosition (x.Value) - basePos) * bias) + vertexOffset).ToList();
 			mi.indices = indList;
 			return mi;
 		}

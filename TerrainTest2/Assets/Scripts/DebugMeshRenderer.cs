@@ -30,15 +30,9 @@ public class DebugMeshRenderer : MonoBehaviour {
 	void Start () {
 		var ds = new CrystalDistortionService ();
 		ds.maxDistance = sr.CellService.Spacing * distortion;
-		var dms = new TerrainSegmentMeshGenerationService ();
-		var tms = new BlockTerrainGenerationService ();
-		dms.distortionService = ds;
-		tms.BlockService = sr.CellService;
-		tms.TerrainService = sr.TerrainService;
-		tms.DistortionService = ds;
-		mgs1 = dms;
-		mgs2 = tms;
-		mgs3 = new CellMeshGenerationService ();
+		mgs1 = new TerrainSegmentMeshGenerationService (sr.CellService, sr.TerrainService, ds);
+		mgs2 = new BlockTerrainGenerationService (sr.CellService, sr.TerrainService, ds);
+		mgs3 = new CellMeshGenerationService (sr.CellService, sr.TerrainService, ds);
 
 		renderGo = new GameObject ("DebugRenderer");
 		renderMf = renderGo.AddComponent<MeshFilter> ();
@@ -54,7 +48,7 @@ public class DebugMeshRenderer : MonoBehaviour {
 					terrainGo.transform.parent = this.transform;
 					terrainGo.transform.position = c.pos;
 
-					var mi = mgs1.GenerateMeshInfo (c, sr.CellService, sr.TerrainService);
+					var mi = mgs1.GenerateMeshInfo (c, Vector3.zero);
 					terrainMf.mesh = ConvertToMesh(mi, true);
 					var terrainMr = terrainGo.AddComponent<MeshRenderer> ();
 					terrainMr.material = mat;
@@ -77,6 +71,10 @@ public class DebugMeshRenderer : MonoBehaviour {
 			mi.ClearCache ();
 
 			terrainMf.mesh = ConvertToMesh (mi, false);
+			terrainMf.mesh.colors = new Color[terrainMf.mesh.vertexCount];
+			for (int i = 0; i < terrainMf.mesh.vertexCount; i++) {
+				terrainMf.mesh.colors [i] = Color.blue;
+			}
 			var terrainMr = terrainGo.AddComponent<MeshRenderer> ();
 			terrainMr.material = mat;
 		}
@@ -91,7 +89,7 @@ public class DebugMeshRenderer : MonoBehaviour {
 			var c = sr.CellService.GetCellInfo (_lastIndex);
 
 			mgs3.bias = debugBias;
-			var mi = mgs3.GenerateMeshInfo (c, sr.CellService, sr.TerrainService);
+			var mi = mgs3.GenerateMeshInfo (c, Vector3.zero);
 			renderMf.mesh = ConvertToMesh (mi, true);
 			renderGo.transform.position = sr.CellService.GetPosition (_lastIndex);
 			renderGo.name = "Debug: " + c.step.ToString();

@@ -1,11 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace CrystalWorld {
 
-	public interface ICellMeshInfoGenerator {
+	public interface ICellMeshInfoGenerator : IMeshInfoService {
 
-	MeshInfo GenerateMeshInfo (CellInfo cell, IBlockService blockService, ITerrainService terrainService);
+		MeshInfo GenerateMeshInfo (CellInfo cell, Vector3 vertexOffset);
 
 	}
 
