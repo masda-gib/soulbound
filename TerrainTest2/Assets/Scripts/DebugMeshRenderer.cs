@@ -70,11 +70,15 @@ public class DebugMeshRenderer : MonoBehaviour {
 			}
 			mi.ClearCache ();
 
-			terrainMf.mesh = ConvertToMesh (mi, false);
-			terrainMf.mesh.colors = new Color[terrainMf.mesh.vertexCount];
-			for (int i = 0; i < terrainMf.mesh.vertexCount; i++) {
-				terrainMf.mesh.colors [i] = Color.blue;
+			var tMesh = ConvertToMesh (mi, false);
+
+			var cols = new List<Color> ();
+			for (int i = 0; i < tMesh.vertexCount; i++) {
+					cols.Add(Color.green);
 			}
+			tMesh.SetColors (cols);
+
+			terrainMf.mesh = tMesh;
 			var terrainMr = terrainGo.AddComponent<MeshRenderer> ();
 			terrainMr.material = mat;
 		}
