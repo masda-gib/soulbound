@@ -250,7 +250,7 @@ MonoBehaviour:
   widthSegs: 7
   heightSegs: 3
   spacing: 1
-  distortion: 0.5
+  distortion: 0
   horiScale: 1
   vertScale: 1.3
 --- !u!4 &227847602
@@ -312,6 +312,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sr: {fileID: 227847601}
   generateTerrain: 1
+  terrainGroup: 1
   smooth: 0.5
   relax: 0.5
   hdTerrain: 0

@@ -9,6 +9,7 @@ namespace CrystalWorld {
 	{
 		public List<Vector3> vertices;
 		public List<Vector3> normals;
+		public List<Dictionary<int, int>> terrainValueWeights;
 		public List<int> indices;
 
 		private Dictionary<int, List<int>> vertexIndicesCache;
@@ -20,6 +21,7 @@ namespace CrystalWorld {
 		public void Init() {
 			vertices = new List<Vector3> ();
 			normals = new List<Vector3> ();
+			terrainValueWeights = new List<Dictionary<int, int>> ();
 			indices = new List<int> ();
 		}
 
@@ -31,6 +33,11 @@ namespace CrystalWorld {
 
 			var pointMap = new Dictionary<int, int> ();
 			var newVerts = new List<Vector3> ();
+			var newTValWeights = new List<Dictionary<int, int>> ();
+
+			var appendTValueWeights = 
+				other.terrainValueWeights != null && this.terrainValueWeights != null &&
+				other.terrainValueWeights.Count >= other.vertices.Count && this.terrainValueWeights.Count >= this.vertices.Count;
 
 			var o = 0;
 			foreach (var p in other.vertices) {
@@ -47,12 +54,28 @@ namespace CrystalWorld {
 				if (vIndex < 0) {
 					pointMap.Add (o, this.vertices.Count + newVerts.Count);
 					newVerts.Add (p);
+					if (appendTValueWeights) {
+						newTValWeights.Add (other.terrainValueWeights [o]);
+					}
 				} else {
 					pointMap.Add (o, vIndex);
+					if (appendTValueWeights) {
+						var thisTEntry = this.terrainValueWeights [vIndex];
+						var otherTEntry = other.terrainValueWeights [o];
+						foreach (var kvp in otherTEntry) {
+							if (thisTEntry.ContainsKey (kvp.Key)) {
+								thisTEntry [kvp.Key] = thisTEntry [kvp.Key] + kvp.Value;
+							} else {
+								thisTEntry.Add (kvp.Key, kvp.Value);
+							}
+						}
+					}
+
 				}
 				o++;
 			}
 			this.vertices.AddRange (newVerts);
+			this.terrainValueWeights.AddRange (newTValWeights);
 		
 			this.indices.AddRange(other.indices.Select (x => pointMap[x]));
 

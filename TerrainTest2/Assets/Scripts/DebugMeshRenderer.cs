@@ -8,6 +8,7 @@ public class DebugMeshRenderer : MonoBehaviour {
 
 	public ServiceTestRenderer sr;
 	public bool generateTerrain;
+	public int terrainGroup;
 	public float smooth;
 	public float relax;
 	public bool hdTerrain;
@@ -42,7 +43,7 @@ public class DebugMeshRenderer : MonoBehaviour {
 
 		if (debugTerrain) {
 			foreach (var c in sr.CellService) {
-				if (sr.TerrainService.GetMaterialGroup (c.pos) > 0) {
+				if (sr.TerrainService.GetTerrainGroup (c.pos) > 0) {
 					var terrainGo = new GameObject ("DebugTerrain");
 					var terrainMf = terrainGo.AddComponent<MeshFilter> ();
 					terrainGo.transform.parent = this.transform;
@@ -62,7 +63,7 @@ public class DebugMeshRenderer : MonoBehaviour {
 			terrainGo.transform.parent = this.transform;
 			terrainGo.transform.position = this.transform.position;
 
-			var mi = mgs2.GenerateMeshInfo ();
+			var mi = mgs2.GenerateMeshInfo (terrainGroup);
 			mi.Smooth (smooth, relax);
 			mi.GenerateNormals ();
 			if (hdTerrain) {
@@ -72,11 +73,11 @@ public class DebugMeshRenderer : MonoBehaviour {
 
 			var tMesh = ConvertToMesh (mi, false);
 
-			var cols = new List<Color> ();
-			for (int i = 0; i < tMesh.vertexCount; i++) {
-					cols.Add(Color.green);
-			}
-			tMesh.SetColors (cols);
+//			var cols = new List<Color> ();
+//			for (int i = 0; i < tMesh.vertexCount; i++) {
+//					cols.Add(Color.green);
+//			}
+//			tMesh.SetColors (cols);
 
 			terrainMf.mesh = tMesh;
 			var terrainMr = terrainGo.AddComponent<MeshRenderer> ();
@@ -105,8 +106,9 @@ public class DebugMeshRenderer : MonoBehaviour {
 		Mesh m = new Mesh ();
 
 		if (mi.IsValid) {
-			m.SetVertices (mi.vertices.ToList ());
-			m.SetTriangles (mi.indices.ToList (), 0);
+			m.SetVertices (mi.vertices);
+			m.SetColors (mi.terrainValueWeights.Select(x => GetVertexColor(x)).ToList());
+			m.SetTriangles (mi.indices, 0);
 			m.RecalculateBounds ();
 			if (reCalculateNormals) {
 				m.RecalculateNormals ();
@@ -116,6 +118,21 @@ public class DebugMeshRenderer : MonoBehaviour {
 		}
 
 		return m;
+	}
+
+	private Color32 GetVertexColor (IDictionary<int, int> tVals) {
+		if (tVals.Count > 0) {
+			var topVal = tVals.OrderByDescending (x => x.Value).First().Key;
+			switch (topVal) {
+			case 1:
+				return Color.yellow;
+			case 2:
+				return Color.grey;
+			default:
+				return Color.green;
+			}
+		}
+		return Color.black;
 	}
 
 }

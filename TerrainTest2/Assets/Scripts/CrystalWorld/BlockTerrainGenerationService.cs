@@ -25,8 +25,10 @@ namespace CrystalWorld {
 			_cellTerrainGenerator = new TerrainMeshGenerationService (blockService, terrainService, distortionService);
 		}
 
-		public MeshInfo GenerateMeshInfo () {
-			
+		public MeshInfo GenerateMeshInfo (int terrainGroup) {
+
+			_cellTerrainGenerator.TerrainGroup = terrainGroup;
+
 			var lowMi = new MeshInfo();
 			lowMi.Init ();
 
