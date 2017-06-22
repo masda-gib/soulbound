@@ -20,9 +20,9 @@ public class DebugMeshRenderer : MonoBehaviour {
 	public int debugUp;
 	public float debugBias = 0.5f;
 
-	private ICellMeshInfoGenerator mgs1;
+	private CellMeshGenerationService mgs1;
 	private BlockTerrainGenerationService mgs2;
-	private CellMeshGenerationService mgs3;
+	private ICellMeshInfoGenerator mgs3;
 	private Index3 _lastIndex;
 	private GameObject renderGo;
 	private MeshFilter renderMf;
@@ -31,9 +31,9 @@ public class DebugMeshRenderer : MonoBehaviour {
 	void Start () {
 		var ds = new CrystalDistortionService ();
 		ds.maxDistance = sr.CellService.Spacing * distortion;
-		mgs1 = new TerrainSegmentMeshGenerationService (sr.CellService, sr.TerrainService, ds);
+		mgs1 = new CellMeshGenerationService (sr.CellService, sr.TerrainService, ds);
 		mgs2 = new BlockTerrainGenerationService (sr.CellService, sr.TerrainService, ds);
-		mgs3 = new CellMeshGenerationService (sr.CellService, sr.TerrainService, ds);
+		mgs3 = new TerrainSegmentMeshGenerationService (sr.CellService, sr.TerrainService, ds);
 
 		renderGo = new GameObject ("DebugRenderer");
 		renderMf = renderGo.AddComponent<MeshFilter> ();
@@ -71,15 +71,7 @@ public class DebugMeshRenderer : MonoBehaviour {
 			}
 			mi.ClearCache ();
 
-			var tMesh = ConvertToMesh (mi, false);
-
-//			var cols = new List<Color> ();
-//			for (int i = 0; i < tMesh.vertexCount; i++) {
-//					cols.Add(Color.green);
-//			}
-//			tMesh.SetColors (cols);
-
-			terrainMf.mesh = tMesh;
+			terrainMf.mesh = ConvertToMesh (mi, false);
 			var terrainMr = terrainGo.AddComponent<MeshRenderer> ();
 			terrainMr.material = mat;
 		}
@@ -93,7 +85,7 @@ public class DebugMeshRenderer : MonoBehaviour {
 
 			var c = sr.CellService.GetCellInfo (_lastIndex);
 
-			mgs3.bias = debugBias;
+			mgs1.bias = debugBias;
 			var mi = mgs3.GenerateMeshInfo (c, Vector3.zero);
 			renderMf.mesh = ConvertToMesh (mi, true);
 			renderGo.transform.position = sr.CellService.GetPosition (_lastIndex);
@@ -107,7 +99,9 @@ public class DebugMeshRenderer : MonoBehaviour {
 
 		if (mi.IsValid) {
 			m.SetVertices (mi.vertices);
-			m.SetColors (mi.terrainValueWeights.Select(x => GetVertexColor(x)).ToList());
+			if (mi.terrainValueWeights != null) {
+				m.SetColors (mi.terrainValueWeights.Select (x => GetVertexColor (x)).ToList ());
+			}
 			m.SetTriangles (mi.indices, 0);
 			m.RecalculateBounds ();
 			if (reCalculateNormals) {

@@ -205,8 +205,6 @@ namespace CrystalWorld {
 			edges2 = GetWithoutEdge (minority [2], minority [1], edges2);
 
 			// find center edges and group
-			var allEdges = edges0.Concat (edges1).Concat (edges2);
-			var edgeGroups = allEdges.GroupBy (x => x.i2);
 			IEnumerable<Edge> centerEdges;
 			var sideEdges = new List<IEnumerable<Edge>>();
 			if (edges0.Count () == 2) {
@@ -223,14 +221,16 @@ namespace CrystalWorld {
 				sideEdges.Add (edges1);
 			}
 
+			var mi = new MeshInfo ();
+
 			// create center fold
-			var foldEdges = edgeGroups.Where(x => x.Count() == 3).SelectMany(y => y as IEnumerable<Edge>).ToArray();
-			var firstEdge = centerEdges.First ();
-			foldEdges = new Edge[] {firstEdge}.Concat(GetWithoutEdge(firstEdge.i1, firstEdge.i2, foldEdges)).ToArray();
-			var mi = CreatePoly (data, foldEdges);
+			var foldEdges = sideEdges.Select(x => x.Where(y => centerEdges.Any(z => z.i2 == y.i2)));
+			mi.Init ();
+			foreach (var fe in foldEdges) {
+				mi.Append (CreatePoly (data, centerEdges.Concat (fe)), _positionTolerance);
+			}
 
-			// create side triangles
-
+			// create sides
 			foreach (var side in sideEdges) {
 				mi.Append(CreatePoly (data, side), _positionTolerance);
 			}
